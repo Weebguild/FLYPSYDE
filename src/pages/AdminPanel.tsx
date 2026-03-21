@@ -359,7 +359,7 @@ const AdminPanel = () => {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', opacity: targetUserId ? 1 : 0.6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', opacity: targetUserId ? 1 : 0.6 }}>
               <NuclearCard 
                 title={isReverse ? "The Pardon Hammer" : "The Ban Hammer"} 
                 description={isReverse ? "Unban a previously suspended user and restore their access immediately." : "Instantly suspend or permanently ban a user. They will be immediately logged out."}
@@ -418,7 +418,7 @@ const AdminPanel = () => {
                </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', opacity: targetGroupCode ? 1 : 0.6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', opacity: targetGroupCode ? 1 : 0.6 }}>
               <NuclearCard 
                 title={isReverse ? "Revive Group" : "Group Termination"} 
                 description={isReverse ? "Undo a soft deletion and bring the squad back online." : "Instantly disband an active group. All members will be orphaned."}
@@ -447,7 +447,7 @@ const AdminPanel = () => {
         );
       case 'content':
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             <NuclearCard 
               title={isReverse ? "Restore Feed Post" : "Nuke Feed Posts"} 
               description={isReverse ? "Bring back a soft-deleted post from the ashes." : "Delete any post, slip, or milestone from the public feed permanently."}
@@ -474,7 +474,7 @@ const AdminPanel = () => {
         );
       case 'system':
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             <NuclearCard 
               title={isReverse ? "Lift Lockout" : "Maintenance Lockout"} 
               description={isReverse ? "Open the app back up to the public." : "Flip a master switch to lock the entire app down."}
@@ -494,7 +494,7 @@ const AdminPanel = () => {
         );
       case 'notifications':
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
             <NuclearCard 
               title="God Voice (Global)" 
               description="Instantly send a custom push notification to ALL users."
@@ -721,13 +721,13 @@ const AdminPanel = () => {
              <input type="checkbox" checked={isReverse} onChange={(e) => setIsReverse(e.target.checked)} style={{ display: 'none' }} />
           </label>
         </div>
-        <p style={{ margin: '0 0 0 68px', color: 'var(--on-surface-variant)', fontSize: '0.95rem', maxWidth: '400px', lineHeight: '1.4' }}>
+        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--on-surface-variant)', fontSize: '0.9rem', lineHeight: '1.4' }}>
           Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
         </p>
       </div>
 
       {/* Tabs Layout */}
-      <div style={{ padding: '2rem 1.5rem' }}>
+      <div style={{ padding: '1.25rem 1rem' }}>
         
         {/* Horizontal Scrollable Tabs */}
         <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '1rem', scrollbarWidth: 'none' }}>
