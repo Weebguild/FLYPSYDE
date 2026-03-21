@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { db } from '../firebase';
-import { ref, query, orderByChild, onValue, limitToLast, runTransaction } from 'firebase/database';
+import { ref, query, orderByChild, onValue, limitToLast, runTransaction, get } from 'firebase/database';
 import { FeedPost } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import WeeklyVoteModal from '../components/WeeklyVoteModal';
@@ -13,6 +13,8 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
+  const [reactionViewer, setReactionViewer] = useState<{ emoji: string; uids: string[] } | null>(null);
+  const [reactionUsers, setReactionUsers] = useState<{ id: string; name: string; photo: string }[]>([]);
   const { currentUser, userProfile } = useAuth();
 
   const handleReaction = async (postId: string, emoji: string) => {
@@ -41,6 +43,27 @@ const Home: React.FC = () => {
       });
     } catch (e) {
       console.error('Transaction failed', e);
+    }
+  };
+
+  const openReactionViewer = async (emoji: string, uids: string[]) => {
+    if (uids.length === 0) return;
+    setReactionViewer({ emoji, uids });
+    setReactionUsers([]); // clear while loading
+    try {
+      const profiles = await Promise.all(
+        uids.map(async (uid) => {
+          const snap = await get(ref(db, `users/${uid}`));
+          if (snap.exists()) {
+            const u = snap.val();
+            return { id: uid, name: u.displayName || 'Unknown', photo: u.photoURL || `https://ui-avatars.com/api/?name=${u.displayName}&background=random` };
+          }
+          return { id: uid, name: 'Unknown', photo: `https://ui-avatars.com/api/?name=?&background=random` };
+        })
+      );
+      setReactionUsers(profiles);
+    } catch (e) {
+      console.error('Failed to fetch reacting users', e);
     }
   };
 
@@ -238,6 +261,7 @@ const Home: React.FC = () => {
                  <button 
                    key={emoji}
                    onClick={() => handleReaction(post.id, emoji)}
+                   onContextMenu={(e) => { e.preventDefault(); if (uids.length > 0) openReactionViewer(emoji, uids); }}
                    style={{ 
                      background: hasReacted ? 'var(--primary-container)' : 'var(--surface-container-low)', 
                      border: `1px solid ${hasReacted ? 'var(--primary)' : 'var(--outline-variant)'}`, 
@@ -251,7 +275,15 @@ const Home: React.FC = () => {
                      transition: 'all 0.2s',
                      fontWeight: 'bold'
                    }}>
-                   {emoji} {uids.length > 0 && <span style={{ fontSize: '0.9rem' }}>{uids.length}</span>}
+                   {emoji}
+                   {uids.length > 0 && (
+                     <span 
+                       onClick={(e) => { e.stopPropagation(); openReactionViewer(emoji, uids); }}
+                       style={{ fontSize: '0.9rem', background: 'rgba(255,255,255,0.15)', borderRadius: '10px', padding: '0 6px', minWidth: '20px', textAlign: 'center' }}
+                     >
+                       {uids.length}
+                     </span>
+                   )}
                  </button>
                )
             })}
@@ -270,6 +302,44 @@ const Home: React.FC = () => {
           )}
         </div>
       ))}
+      {/* Reaction Viewer Bottom Sheet */}
+      {reactionViewer && (
+        <div 
+          onClick={() => setReactionViewer(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 5000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: '480px', background: 'var(--surface-container)', borderTopLeftRadius: '24px', borderTopRightRadius: '24px', padding: '1.5rem', paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}
+          >
+            <div style={{ width: '40px', height: '4px', background: 'var(--outline-variant)', borderRadius: '2px', margin: '0 auto 1.25rem' }} />
+            <h3 style={{ margin: '0 0 1.25rem 0', textAlign: 'center', fontSize: '1.1rem' }}>
+              {reactionViewer.emoji} Reactions · {reactionViewer.uids.length}
+            </h3>
+            {reactionUsers.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>Loading...</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '50vh', overflowY: 'auto' }}>
+                {reactionUsers.map(u => (
+                  <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem', borderRadius: '12px', background: 'var(--surface-container-high)' }}>
+                    <img src={u.photo} alt={u.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary)' }} />
+                    <span style={{ fontWeight: 700, fontSize: '1rem' }}>{u.name}</span>
+                    {u.id === currentUser?.uid && (
+                      <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--secondary)', fontWeight: 'bold' }}>YOU</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <button 
+              onClick={() => setReactionViewer(null)}
+              style={{ width: '100%', marginTop: '1.25rem', padding: '0.9rem', background: 'var(--surface-container-highest)', border: 'none', color: 'var(--on-surface)', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </PageTransition>
   );
 };
