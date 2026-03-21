@@ -35,8 +35,14 @@
   --font-body: 'Manrope', sans-serif;
 }
 
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
 body {
   margin: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
   min-width: 320px;
   min-height: 100vh;
   background-color: #3b0a0a; /* Fallback */
@@ -76,6 +82,7 @@ h1, h2, h3, h4, h5, h6, .display {
 .text-gradient-primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-container));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
