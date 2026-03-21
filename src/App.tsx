@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
 import BottomNav from './components/BottomNav';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // Keep essential onboarding flows eagerly loaded
 import DayZero from './pages/DayZero';
@@ -62,6 +63,7 @@ function App() {
       />
       <BottomNav />
       <AnimatedRoutes />
+      <SpeedInsights />
     </Router>
   );
 }
