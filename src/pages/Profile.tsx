@@ -78,7 +78,7 @@ const Profile = () => {
         afterImage={latestPhoto} 
       />
 
-      <h3 style={{ marginBottom: '1rem', marginTop: '1rem', color: 'var(--on-surface)' }}>100-DAY CONSISTENCY</h3>
+      <h3 style={{ marginBottom: '1rem', marginTop: '1rem', color: 'var(--on-surface)' }}>7-DAY CONSISTENCY</h3>
       <Heatmap habitName="No Junk Food" streakData={mockJunkFood} />
       <Heatmap habitName="No Smoking" streakData={mockSmoking} />
       <Heatmap habitName="Daily Study" streakData={mockStudy} />
