@@ -12,34 +12,6 @@ const Profile = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   if (!userProfile) return <div style={{ padding: '2rem' }}>Loading Profile...</div>;
-
-  const handleAddDummy = async () => {
-    if (!userProfile.groupCode) return;
-    const dummyId = 'dummy_' + Math.random().toString(36).substring(2, 7);
-    const names = ['Ghost Riter', 'Iron Man', 'Gym Bro', 'Sleepless'];
-    const randomName = names[Math.floor(Math.random() * names.length)];
-    
-    const dummyRef = ref(db, `users/${dummyId}`);
-    try {
-      await set(dummyRef, {
-        id: dummyId,
-        displayName: randomName,
-        photoURL: `https://ui-avatars.com/api/?name=${randomName.replace(' ', '+')}`,
-        email: 'dummy@test.com',
-        isAdmin: false,
-        rankTitle: 'Target Dummy',
-        joinedAt: new Date().getTime() - 86400000 * 3, // 3 days ago
-        groupCode: userProfile.groupCode,
-        startingWeight: 80,
-        currentWeight: 78,
-        weightUnit: 'kg'
-      });
-      alert(`Dummy user ${randomName} appended to your squad!`);
-    } catch(err) {
-      alert("Failed to add dummy. Check Firebase Rules.");
-    }
-  };
-
   // Mocking past streak data for the demonstration
   // 1 = Pass, 2 = Slip. Length indicates days passed in challenge.
   const mockJunkFood = [1, 1, 1, 1, 2, 1, 1]; 
@@ -56,9 +28,9 @@ const Profile = () => {
 
   return (
     <div style={{ padding: '2rem', paddingBottom: '100px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h1 className="text-gradient-primary" style={{ margin: 0 }}>PROFILE</h1>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           {userProfile.isAdmin && (
             <button 
               onClick={() => window.location.href = '/admin'}
@@ -67,9 +39,6 @@ const Profile = () => {
               COMMAND CENTER
             </button>
           )}
-          <button onClick={handleAddDummy} style={{ background: 'var(--surface-container-high)', border: '1px dashed var(--primary)', color: 'var(--primary)', padding: '0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 'bold' }}>
-            + DUMMY
-          </button>
           <button onClick={() => setIsSettingsOpen(true)} style={{ background: 'var(--surface-container-high)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--on-surface)', padding: '0.6rem', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
              <Settings size={28} />
           </button>
