@@ -27,8 +27,8 @@ const Profile = () => {
   const isLoss = weightChange > 0;
 
   return (
-    <div style={{ padding: '2rem', paddingBottom: '100px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', gap: '0.5rem' }}>
+    <div style={{ padding: '1.25rem', paddingBottom: '100px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', gap: '0.5rem' }}>
         <h1 className="text-gradient-primary" style={{ margin: 0, fontSize: 'clamp(1.5rem, 5vw, 2rem)' }}>PROFILE</h1>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {userProfile.isAdmin && (
@@ -45,7 +45,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="glass-card glow-primary" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="glass-card glow-primary" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', padding: '1rem' }}>
         <img 
           src={userProfile.photoURL || `https://ui-avatars.com/api/?name=${userProfile.displayName}`} 
           alt="Avatar" 
@@ -60,7 +60,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
         <div className="glass-card" style={{ flex: 1, textAlign: 'center', padding: '1rem' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--on-surface-variant)' }}>CURRENT WEIGHT</span>
           <h3 style={{ margin: '0.5rem 0', fontSize: '1.5rem' }}>{userProfile.currentWeight} {userProfile.weightUnit}</h3>
@@ -78,7 +78,7 @@ const Profile = () => {
         afterImage={latestPhoto} 
       />
 
-      <h3 style={{ marginBottom: '1.5rem', color: 'var(--on-surface)' }}>100-DAY CONSISTENCY</h3>
+      <h3 style={{ marginBottom: '1rem', marginTop: '1rem', color: 'var(--on-surface)' }}>100-DAY CONSISTENCY</h3>
       <Heatmap habitName="No Junk Food" streakData={mockJunkFood} />
       <Heatmap habitName="No Smoking" streakData={mockSmoking} />
       <Heatmap habitName="Daily Study" streakData={mockStudy} />
