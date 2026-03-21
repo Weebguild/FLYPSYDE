@@ -188,7 +188,8 @@ const ExpandableComments: React.FC<Props> = ({ postId, groupCode }) => {
               borderRadius: '8px', 
               fontWeight: 'bold',
               cursor: inputText.trim() ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              flexShrink: 0
             }}
           >
             SEND

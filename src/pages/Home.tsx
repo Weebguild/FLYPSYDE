@@ -161,13 +161,13 @@ const Home: React.FC = () => {
       <div 
         onClick={() => setIsVoteModalOpen(true)}
         className="glass-card glow-primary" 
-        style={{ padding: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', border: '1px solid var(--tertiary)' }}
+        style={{ padding: '1.2rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '1rem', cursor: 'pointer', border: '1px solid var(--tertiary)' }}
       >
         <div>
-          <h3 style={{ margin: 0, color: 'var(--on-surface)' }}>🗳️ WEEKLY TRIBUNAL</h3>
-          <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--on-surface-variant)' }}>Vote for the MVP and Slacker</p>
+          <h3 style={{ margin: 0, color: 'var(--on-surface)', fontSize: '1.1rem' }}>🗳️ WEEKLY TRIBUNAL</h3>
+          <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--on-surface-variant)' }}>Vote for the MVP and Slacker</p>
         </div>
-        <div style={{ background: 'var(--tertiary)', color: 'var(--background)', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.8rem' }}>
+        <div style={{ background: 'var(--tertiary)', color: 'var(--background)', padding: '0.6rem 1.5rem', borderRadius: '24px', fontWeight: 'bold', fontSize: '0.9rem', width: '100%', maxWidth: '200px' }}>
           VOTE NOW
         </div>
       </div>
