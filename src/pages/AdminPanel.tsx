@@ -693,39 +693,39 @@ const AdminPanel = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <div style={{ padding: '1.5rem 1rem', background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.15) 0%, rgba(9, 9, 11, 0) 100%)', borderBottom: '1px solid rgba(255, 59, 48, 0.2)' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+      <div style={{ padding: '2rem 1.5rem', background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.15) 0%, rgba(9, 9, 11, 0) 100%)', borderBottom: '1px solid rgba(255, 59, 48, 0.2)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
             <button 
               onClick={() => navigate(-1)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)' }}
+              style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={22} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '6px', borderRadius: '10px', transition: 'all 0.3s' }}>
-                <ShieldAlert size={24} color={isReverse ? "#10b981" : "var(--error)"} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+              <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '8px', borderRadius: '12px', transition: 'all 0.3s' }}>
+                <ShieldAlert size={28} color={isReverse ? "#10b981" : "var(--error)"} />
               </div>
-              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s', wordBreak: 'break-word' }}>
+              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s', lineHeight: 1.1 }}>
                 {isReverse ? 'Restoration Hub' : 'Command Center'}
               </h1>
             </div>
           </div>
           
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', alignSelf: 'flex-start', width: 'fit-content' }}>
-             <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: isReverse ? 'var(--on-surface-variant)' : 'var(--error)', transition: 'color 0.3s' }}>NUKE</span>
-             <div style={{ width: '36px', height: '20px', background: isReverse ? '#10b981' : 'var(--surface-variant)', borderRadius: '10px', position: 'relative', transition: 'background 0.3s' }}>
-               <div style={{ width: '16px', height: '16px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isReverse ? '18px' : '2px', transition: 'left 0.2s' }} />
-             </div>
-             <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: isReverse ? '#10b981' : 'var(--on-surface-variant)', transition: 'color 0.3s' }}>RESTORE</span>
-             <input type="checkbox" checked={isReverse} onChange={(e) => setIsReverse(e.target.checked)} style={{ display: 'none' }} />
-          </label>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px', background: 'rgba(255,255,255,0.05)', padding: '8px 16px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)' }}>
+               <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: isReverse ? 'var(--on-surface-variant)' : 'var(--error)', transition: 'color 0.3s', letterSpacing: '0.5px' }}>NUKE</span>
+               <div style={{ width: '40px', height: '22px', background: isReverse ? '#10b981' : 'var(--surface-variant)', borderRadius: '11px', position: 'relative', transition: 'background 0.3s' }}>
+                 <div style={{ width: '18px', height: '18px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isReverse ? '20px' : '2px', transition: 'left 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+               </div>
+               <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: isReverse ? '#10b981' : 'var(--on-surface-variant)', transition: 'color 0.3s', letterSpacing: '0.5px' }}>RESTORE</span>
+               <input type="checkbox" checked={isReverse} onChange={(e) => setIsReverse(e.target.checked)} style={{ display: 'none' }} />
+            </label>
+            <p style={{ margin: 0, color: 'var(--on-surface-variant)', fontSize: '0.9rem', maxWidth: '320px', lineHeight: '1.4' }}>
+              Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
+            </p>
           </div>
         </div>
-        <p style={{ margin: '0', color: 'var(--on-surface-variant)', fontSize: '0.9rem', lineHeight: '1.4' }}>
-          Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
-        </p>
       </div>
 
       {/* Tabs Layout */}
