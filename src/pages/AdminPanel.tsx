@@ -693,35 +693,37 @@ const AdminPanel = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <div style={{ padding: '2rem 1.5rem', background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.15) 0%, rgba(9, 9, 11, 0) 100%)', borderBottom: '1px solid rgba(255, 59, 48, 0.2)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ padding: '1.5rem 1rem', background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.15) 0%, rgba(9, 9, 11, 0) 100%)', borderBottom: '1px solid rgba(255, 59, 48, 0.2)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <button 
               onClick={() => navigate(-1)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', marginRight: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.05)' }}
             >
-              <ArrowLeft size={20} />
+              <ArrowLeft size={18} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '8px', borderRadius: '12px', transition: 'all 0.3s' }}>
-                <ShieldAlert size={28} color={isReverse ? "#10b981" : "var(--error)"} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '6px', borderRadius: '10px', transition: 'all 0.3s' }}>
+                <ShieldAlert size={24} color={isReverse ? "#10b981" : "var(--error)"} />
               </div>
-              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', textShadow: isReverse ? '0 0 20px rgba(16, 185, 129, 0.5)' : '0 0 20px rgba(255, 59, 48, 0.5)', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s' }}>
+              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s', wordBreak: 'break-word' }}>
                 {isReverse ? 'Restoration Hub' : 'Command Center'}
               </h1>
             </div>
           </div>
           
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', alignSelf: 'flex-start', width: 'fit-content' }}>
              <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: isReverse ? 'var(--on-surface-variant)' : 'var(--error)', transition: 'color 0.3s' }}>NUKE</span>
              <div style={{ width: '36px', height: '20px', background: isReverse ? '#10b981' : 'var(--surface-variant)', borderRadius: '10px', position: 'relative', transition: 'background 0.3s' }}>
-               <div style={{ width: '16px', height: '16px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isReverse ? '18px' : '2px', transition: 'left 0.2s cubic-bezier(0.4, 0, 0.2, 1)' }} />
+               <div style={{ width: '16px', height: '16px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: isReverse ? '18px' : '2px', transition: 'left 0.2s' }} />
              </div>
              <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: isReverse ? '#10b981' : 'var(--on-surface-variant)', transition: 'color 0.3s' }}>RESTORE</span>
              <input type="checkbox" checked={isReverse} onChange={(e) => setIsReverse(e.target.checked)} style={{ display: 'none' }} />
           </label>
+          </div>
         </div>
-        <p style={{ margin: '0.5rem 0 0 0', color: 'var(--on-surface-variant)', fontSize: '0.9rem', lineHeight: '1.4' }}>
+        <p style={{ margin: '0', color: 'var(--on-surface-variant)', fontSize: '0.9rem', lineHeight: '1.4' }}>
           Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
         </p>
       </div>
