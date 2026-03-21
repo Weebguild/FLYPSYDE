@@ -1,17 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { ref, query, orderByChild, onValue, limitToLast } from 'firebase/database';
+import { ref, query, orderByChild, onValue, limitToLast, runTransaction } from 'firebase/database';
 import { FeedPost } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import WeeklyVoteModal from '../components/WeeklyVoteModal';
 import { requestNotificationPermission } from '../utils/notifications';
 import PageTransition from '../components/PageTransition';
+import ExpandableComments from '../components/ExpandableComments';
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVoteModalOpen, setIsVoteModalOpen] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
   const { currentUser, userProfile } = useAuth();
+
+  const handleReaction = async (postId: string, emoji: string) => {
+    if (!currentUser || !userProfile?.groupCode) return;
+    
+    // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(20);
+
+    const reactionRef = ref(db, `feeds/${userProfile.groupCode}/${postId}/reactions/${emoji}`);
+    
+    try {
+      await runTransaction(reactionRef, (currentData: string[] | null) => {
+        if (!currentData) {
+          return [currentUser.uid]; // First reaction of this type
+        }
+        const index = currentData.indexOf(currentUser.uid);
+        if (index > -1) {
+          // Remove if they already reacted
+          const newData = [...currentData];
+          newData.splice(index, 1);
+          return newData; 
+        } else {
+          // Add reaction
+          return [...currentData, currentUser.uid];
+        }
+      });
+    } catch (e) {
+      console.error('Transaction failed', e);
+    }
+  };
+
+  const toggleComments = (postId: string) => {
+    setExpandedComments(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
 
   useEffect(() => {
     // Ask for FCM push notification permissions
@@ -188,15 +226,48 @@ const Home: React.FC = () => {
             </div>
           )}
 
-          {/* Reactions (Dummy for now) */}
-          <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '1rem' }}>
-            <button style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              🔥 <span style={{ fontSize: '0.9rem' }}>4</span>
-            </button>
-            <button style={{ background: 'var(--surface-container-low)', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              💪 <span style={{ fontSize: '0.9rem' }}>2</span>
+          {/* Reactions and Comments Thread */}
+          <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--outline-variant)', paddingTop: '1rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+            {['🔥', '💪', '🚨', '🤡'].map(emoji => {
+               const uids = post.reactions?.[emoji] || [];
+               const hasReacted = currentUser && uids.includes(currentUser.uid);
+               
+               if (uids.length === 0 && !hasReacted && emoji !== '🔥' && emoji !== '💪') return null; // Only show fire/muscle by default to save space
+               
+               return (
+                 <button 
+                   key={emoji}
+                   onClick={() => handleReaction(post.id, emoji)}
+                   style={{ 
+                     background: hasReacted ? 'var(--primary-container)' : 'var(--surface-container-low)', 
+                     border: `1px solid ${hasReacted ? 'var(--primary)' : 'var(--outline-variant)'}`, 
+                     color: hasReacted ? 'var(--on-primary-container)' : 'var(--on-surface)', 
+                     padding: '0.4rem 0.8rem', 
+                     borderRadius: '20px', 
+                     cursor: 'pointer', 
+                     display: 'flex', 
+                     alignItems: 'center', 
+                     gap: '0.5rem',
+                     transition: 'all 0.2s',
+                     fontWeight: 'bold'
+                   }}>
+                   {emoji} {uids.length > 0 && <span style={{ fontSize: '0.9rem' }}>{uids.length}</span>}
+                 </button>
+               )
+            })}
+            
+            <div style={{ flex: 1 }} />
+            
+            <button 
+              onClick={() => toggleComments(post.id)}
+              style={{ background: 'var(--surface-container-high)', border: '1px solid var(--outline-variant)', color: 'var(--on-surface-variant)', padding: '0.4rem 1rem', borderRadius: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold' }}>
+              💬 Reply
             </button>
           </div>
+
+          {expandedComments[post.id] && userProfile?.groupCode && (
+             <ExpandableComments postId={post.id} groupCode={userProfile.groupCode} />
+          )}
         </div>
       ))}
     </PageTransition>
