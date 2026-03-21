@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: #0e0e0e;
+  --surface: #0e0e0e;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #131313;
+  --surface-container: #1a1919;
+  --surface-container-high: #201f1f;
+  --surface-container-highest: #262626;
+  --surface-variant: #262626;
+  
+  --primary: #ff89ab;
+  --primary-container: #ff709e;
+  --primary-dim: #e30071;
+  
+  --secondary: #00e3fd;
+  --secondary-container: #006875;
+  --secondary-dim: #00d4ec;
+  --secondary-fixed: #26e6ff;
+  
+  --tertiary: #8eff71;
+  --tertiary-dim: #2be800;
+  
+  --error: #ff6e84;
+  --error-dim: #d73357;
+  
+  --on-surface: #ffffff;
+  --on-surface-variant: #adaaaa;
+  
+  --outline-variant: #494847;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #3b0a0a; /* Fallback */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('/app-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: contain; /* For pull to refresh */
+}
+
+h1, h2, h3, h4, h5, h6, .display {
+  font-family: var(--font-display);
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.glass-card {
+  background: rgba(10, 10, 10, 0.55); /* deeper dark glass */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 12px;
+  border: 1px solid rgba(73, 72, 71, 0.15); /* outline-variant fallback */
+  padding: 1.5rem;
+}
+
+.glow-primary {
+  box-shadow: 0 0 32px rgba(227, 0, 113, 0.08); /* primary-dim */
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-container));
+  border: none;
+  color: var(--on-surface);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.button-primary:hover {
+  box-shadow: 0 0 12px rgba(227, 0, 113, 0.8);
+}
+
+.button-primary:active {
+  transform: scale(0.96);
+}
+
+.button-secondary {
+  background: transparent;
+  border: 2px solid var(--secondary-fixed);
+  color: var(--secondary-fixed);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.button-secondary:hover {
+  box-shadow: 0 0 12px rgba(0, 212, 236, 0.8); /* secondary-dim */
+}
+
+.button-secondary:active {
+  transform: scale(0.96);
+}
