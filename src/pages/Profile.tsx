@@ -28,9 +28,9 @@ const Profile = () => {
 
   return (
     <div style={{ padding: '2rem', paddingBottom: '100px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h1 className="text-gradient-primary" style={{ margin: 0 }}>PROFILE</h1>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', gap: '0.5rem' }}>
+        <h1 className="text-gradient-primary" style={{ margin: 0, fontSize: 'clamp(1.5rem, 5vw, 2rem)' }}>PROFILE</h1>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {userProfile.isAdmin && (
             <button 
               onClick={() => window.location.href = '/admin'}
