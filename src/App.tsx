@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import BottomNav from './components/BottomNav';
 
 // Keep essential onboarding flows eagerly loaded
@@ -62,6 +63,7 @@ function App() {
       />
       <BottomNav />
       <AnimatedRoutes />
+      <SpeedInsights />
     </Router>
   );
 }
