@@ -5,6 +5,7 @@ import { FeedPost } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import WeeklyVoteModal from '../components/WeeklyVoteModal';
 import { requestNotificationPermission } from '../utils/notifications';
+import { calculateCurrentDay } from '../utils/dateUtils';
 import PageTransition from '../components/PageTransition';
 import ExpandableComments from '../components/ExpandableComments';
 
@@ -147,7 +148,7 @@ const Home: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 className="text-gradient-primary" style={{ margin: 0, fontSize: '1.8rem' }}>FLYPSYD</h1>
           <div style={{ background: 'var(--surface-container)', padding: '0.4rem 0.8rem', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', border: '1px solid var(--tertiary)' }}>
-            <span style={{ color: 'var(--tertiary)' }}>DAY 1</span> / 100
+            <span style={{ color: 'var(--tertiary)' }}>DAY {calculateCurrentDay(userProfile?.joinedAt)}</span> / 100
           </div>
         </div>
         

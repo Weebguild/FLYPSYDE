@@ -4,6 +4,7 @@ import { ref, onValue, push, serverTimestamp } from 'firebase/database';
 import { useAuth } from '../contexts/AuthContext';
 import { User } from '../types';
 import PageTransition from '../components/PageTransition';
+import { calculateCurrentDay } from '../utils/dateUtils';
 import toast from 'react-hot-toast';
 
 const Leaderboard = () => {
@@ -121,7 +122,7 @@ const Leaderboard = () => {
 
       <div className="glass-card glow-primary" style={{ marginBottom: '2rem', textAlign: 'center' }}>
         <h3 style={{ margin: 0, color: 'var(--secondary)' }}>GROUP STREAK</h3>
-        <h1 style={{ fontSize: '3rem', margin: '0.5rem 0', color: 'var(--on-surface)' }}>Day 1</h1>
+        <h1 style={{ fontSize: '3rem', margin: '0.5rem 0', color: 'var(--on-surface)' }}>Day {calculateCurrentDay(userProfile?.joinedAt)}</h1>
         <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem', margin: 0 }}>Surviving together</p>
       </div>
 

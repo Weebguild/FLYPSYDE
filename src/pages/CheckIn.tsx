@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useGroup } from '../contexts/GroupContext';
 import { uploadToCloudinary } from '../utils/cloudinary';
+import { calculateCurrentDay } from '../utils/dateUtils';
 import { db } from '../firebase';
 import { ref, push, serverTimestamp, update } from 'firebase/database';
 import SlipLogModal from '../components/SlipLogModal';
@@ -133,8 +134,8 @@ const CheckIn = () => {
       // 1. Upload to Cloudinary
       const photoURL = await uploadToCloudinary(selectedFile);
 
-      // Calculate Day Number based on challenge start date (mocking for now as Day 1)
-      const dayNumber = 1; 
+      // Calculate Day Number based on challenge start date
+      const dayNumber = calculateCurrentDay(userProfile.joinedAt); 
 
       // 2. Post to Feed (now including habits)
       const feedRef = ref(db, `feeds/${userProfile.groupCode}`);
@@ -215,7 +216,7 @@ const CheckIn = () => {
             style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: '4px' }} 
           />
           <div style={{ marginTop: '1.5rem', textAlign: 'center', fontFamily: 'var(--font-display)' }}>
-            <h2 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.5rem', fontWeight: 800 }}>DAY 1 COMPLETE</h2>
+            <h2 style={{ margin: 0, color: '#1a1a1a', fontSize: '1.5rem', fontWeight: 800 }}>DAY {calculateCurrentDay(userProfile?.joinedAt)} COMPLETE</h2>
             <p style={{ margin: '0.5rem 0 0 0', color: '#666', fontSize: '0.9rem', fontWeight: 600 }}>{userProfile?.displayName}</p>
             {completedHabits.length > 0 && (
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
@@ -290,7 +291,7 @@ const CheckIn = () => {
             WebkitTextFillColor: 'transparent',
             display: 'inline-block'
           }}>
-            DAY 1 <span style={{ fontSize: '1.5rem', opacity: 0.5 }}>/ 100</span>
+            DAY {calculateCurrentDay(userProfile?.joinedAt)} <span style={{ fontSize: '1.5rem', opacity: 0.5 }}>/ 100</span>
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--on-surface-variant)', marginTop: '0.5rem', fontSize: '0.85rem' }}>
             <Clock size={14} />
@@ -405,7 +406,7 @@ const CheckIn = () => {
                   disabled={loading}
                   style={{ width: '100%', marginTop: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
                 >
-                  {loading ? 'SECURING...' : 'SECURE DAY 1'}
+                  {loading ? 'SECURING...' : `SECURE DAY ${calculateCurrentDay(userProfile?.joinedAt)}`}
                 </motion.button>
               )}
             </div>
