@@ -8,6 +8,7 @@ import { requestNotificationPermission } from '../utils/notifications';
 import { calculateCurrentDay } from '../utils/dateUtils';
 import PageTransition from '../components/PageTransition';
 import ExpandableComments from '../components/ExpandableComments';
+import { useUIConfig } from '../contexts/UIConfigContext';
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<FeedPost[]>([]);
@@ -17,6 +18,7 @@ const Home: React.FC = () => {
   const [reactionViewer, setReactionViewer] = useState<{ emoji: string; uids: string[] } | null>(null);
   const [reactionUsers, setReactionUsers] = useState<{ id: string; name: string; photo: string }[]>([]);
   const { currentUser, userProfile } = useAuth();
+  const { uiConfig } = useUIConfig();
 
   const handleReaction = async (postId: string, emoji: string) => {
     if (!currentUser || !userProfile?.groupCode) return;
@@ -165,8 +167,8 @@ const Home: React.FC = () => {
         style={{ padding: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', cursor: 'pointer', border: '1px solid var(--tertiary)', textAlign: 'center' }}
       >
         <div>
-          <h3 style={{ margin: 0, color: 'var(--on-surface)', fontSize: '1.1rem' }}>🗳️ WEEKLY TRIBUNAL</h3>
-          <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--on-surface-variant)' }}>Vote for the MVP and Slacker</p>
+          <h3 style={{ margin: 0, color: 'var(--on-surface)', fontSize: '1.1rem' }}>{uiConfig.weeklyTribunalTitle}</h3>
+          <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--on-surface-variant)' }}>{uiConfig.weeklyTribunalSubtitle}</p>
         </div>
         <div style={{ background: 'var(--tertiary)', color: 'var(--background)', padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
           VOTE NOW
@@ -201,7 +203,7 @@ const Home: React.FC = () => {
         <div className="glass-card" style={{ textAlign: 'center', marginTop: '2rem', padding: '3rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.8 }}>🌪️</div>
           <h3 style={{ margin: 0, color: 'var(--on-surface)' }}>The Feed is Empty</h3>
-          <p style={{ color: 'var(--on-surface-variant)', marginTop: '0.5rem', fontSize: '0.9rem' }}>Be the spark. Check in to start the streak!</p>
+          <p style={{ color: 'var(--on-surface-variant)', marginTop: '0.5rem', fontSize: '0.9rem' }}>{uiConfig.emptyFeedMessage}</p>
         </div>
       )}
 

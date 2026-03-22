@@ -6,9 +6,11 @@ import { User } from '../types';
 import PageTransition from '../components/PageTransition';
 import { calculateCurrentDay } from '../utils/dateUtils';
 import toast from 'react-hot-toast';
+import { useUIConfig } from '../contexts/UIConfigContext';
 
 const Leaderboard = () => {
   const { currentUser, userProfile } = useAuth();
+  const { uiConfig } = useUIConfig();
   const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overall' | 'habits'>('overall');
@@ -84,7 +86,7 @@ const Leaderboard = () => {
 
   return (
     <PageTransition className="leaderboard-container" style={{ padding: '2rem', paddingBottom: '100px' }}>
-      <h1 className="text-gradient-primary" style={{ textAlign: 'center', marginBottom: '2rem' }}>SQUAD RANKINGS</h1>
+      <h1 className="text-gradient-primary" style={{ textAlign: 'center', marginBottom: '2rem' }}>{uiConfig.leaderboardTitle}</h1>
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', background: 'var(--surface-container)', padding: '0.5rem', borderRadius: '12px' }}>

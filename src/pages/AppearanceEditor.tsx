@@ -206,13 +206,12 @@ const MockLeaderboard: React.FC = () => {
 };
 
 // --- Preview Sheet ---
-type PreviewScreen = 'dayzero' | 'home' | 'checkin' | 'leaderboard' | 'profile';
+type PreviewScreen = 'dayzero' | 'home' | 'checkin' | 'leaderboard';
 const PREVIEW_SCREENS: { id: PreviewScreen; label: string }[] = [
   { id: 'dayzero', label: 'Day Zero' },
   { id: 'home', label: 'Home' },
   { id: 'checkin', label: 'Check-In' },
   { id: 'leaderboard', label: 'Rankings' },
-  { id: 'profile', label: 'Profile' },
 ];
 
 const PreviewSheet: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -255,7 +254,6 @@ const PreviewSheet: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               {activeScreen === 'home' && <MockHome />}
               {activeScreen === 'checkin' && <MockCheckIn />}
               {activeScreen === 'leaderboard' && <MockLeaderboard />}
-              {activeScreen === 'profile' && <MockProfile />}
             </motion.div>
           </AnimatePresence>
         </div>
