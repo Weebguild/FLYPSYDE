@@ -1,276 +1,143 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { db } from '../firebase';
-import { ref, onValue, push, serverTimestamp } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import { useAuth } from '../contexts/AuthContext';
-import { User } from '../types';
-import PageTransition from '../components/PageTransition';
-import { calculateCurrentDay } from '../utils/dateUtils';
-import toast from 'react-hot-toast';
 import { useUIConfig } from '../contexts/UIConfigContext';
+import { User } from '../types';
 
-const Leaderboard = () => {
-  const { currentUser, userProfile } = useAuth();
+const rankColors: Record<number, string> = {
+  1: '#FFD700',
+  2: '#C0C0C0',
+  3: '#CD7F32',
+};
+
+const Leaderboard: React.FC = () => {
+  const { currentUser } = useAuth();
   const { uiConfig } = useUIConfig();
-  const [members, setMembers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overall' | 'habits'>('overall');
-  
-  // War logic state
-  const [warTarget, setWarTarget] = useState<User | null>(null);
-  const [warHabit, setWarHabit] = useState('');
-  const [isWagingWar, setIsWagingWar] = useState(false);
-
-  const handleWarSubmit = async () => {
-    if (!warTarget || !warHabit || !currentUser || !userProfile || !userProfile.groupCode) return;
-    setIsWagingWar(true);
-    
-    // Haptic feedback
-    if (navigator.vibrate) navigator.vibrate(50);
-
-    try {
-      // Announce war in feed
-      const feedRef = ref(db, `feeds/${userProfile.groupCode}`);
-      await push(feedRef, {
-        userId: currentUser.uid,
-        userName: userProfile.displayName,
-        userPhotoURL: userProfile.photoURL,
-        type: 'war',
-        targetId: warTarget.id,
-        targetName: warTarget.displayName,
-        habitId: warHabit,
-        timestamp: serverTimestamp(),
-        reactions: {}
-      });
-
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Success pattern
-      toast.success(`War declared on ${warTarget.displayName} for 3 days!`, { icon: '⚔️' });
-      setWarTarget(null);
-    } catch (err) {
-      console.error(err);
-      if (navigator.vibrate) navigator.vibrate(200);
-      toast.error('Failed to declare war.');
-    } finally {
-      setIsWagingWar(false);
-    }
-  };
 
   useEffect(() => {
-    if (!userProfile || !userProfile.groupCode) return;
-
-    // Fetch all members in the squad
     const usersRef = ref(db, 'users');
-    const unsubscribe = onValue(usersRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const squadMembers: User[] = [];
-        snapshot.forEach((childSnap) => {
-          const u = childSnap.val() as User;
-          if (u.groupCode === userProfile.groupCode) {
-            squadMembers.push(u);
-          }
-        });
-        
-        // Mocking an overall score for ranking since we don't have real streaks stored yet
-        // In reality, this would sort by a computed score based on days survived without slips
-        setMembers(squadMembers.sort((a, b) => {
-          // just pseudo-sorting by joined time for now if no score exists
-          return (a.joinedAt as number) - (b.joinedAt as number);
-        }));
-        setLoading(false);
+    const unsub = onValue(usersRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val() as Record<string, User>;
+        const list = Object.values(data)
+          .sort((a, b) => (b.currentWeight ?? 0) - (a.currentWeight ?? 0)); // replace with streak
+        setUsers(list);
       } else {
-        setLoading(false);
+        setUsers([]);
       }
+      setLoading(false);
     });
-
-    return () => unsubscribe();
-  }, [userProfile]);
+    return () => unsub();
+  }, []);
 
   return (
-    <PageTransition className="leaderboard-container" style={{ padding: '2rem', paddingBottom: '100px' }}>
-      <h1 className="text-gradient-primary" style={{ textAlign: 'center', marginBottom: '2rem' }}>{uiConfig.leaderboardTitle}</h1>
+    <div style={{ padding: '1.5rem 1.5rem 0' }}>
+      <h2 style={{
+        fontSize: '0.7rem',
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+        color: 'var(--on-surface-variant)',
+        marginBottom: '1rem',
+        marginTop: '1rem',
+        fontWeight: 700,
+      }}>
+        {uiConfig.leaderboardTitle}
+      </h2>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', background: 'var(--surface-container)', padding: '0.5rem', borderRadius: '12px' }}>
-        <button 
-          onClick={() => setActiveTab('overall')}
-          style={{ 
-            flex: 1, 
-            padding: '0.8rem', 
-            borderRadius: '8px',
-            border: 'none',
-            background: activeTab === 'overall' ? 'var(--primary)' : 'transparent',
-            color: activeTab === 'overall' ? 'var(--background)' : 'var(--on-surface)',
-            fontWeight: 'bold',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          OVERALL
-        </button>
-        <button 
-          onClick={() => setActiveTab('habits')}
-          style={{ 
-            flex: 1, 
-            padding: '0.8rem', 
-            borderRadius: '8px',
-            border: 'none',
-            background: activeTab === 'habits' ? 'var(--primary)' : 'transparent',
-            color: activeTab === 'habits' ? 'var(--background)' : 'var(--on-surface)',
-            fontWeight: 'bold',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          PER-HABIT
-        </button>
-      </div>
-
-      <div className="glass-card glow-primary" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-        <h3 style={{ margin: 0, color: 'var(--secondary)' }}>GROUP STREAK</h3>
-        <h1 style={{ fontSize: '3rem', margin: '0.5rem 0', color: 'var(--on-surface)' }}>Day {calculateCurrentDay(userProfile?.joinedAt)}</h1>
-        <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem', margin: 0 }}>Surviving together</p>
-      </div>
-
-      {loading && activeTab === 'overall' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {[1, 2, 3, 4].map(n => (
-            <div key={n} style={{ display: 'flex', alignItems: 'center', background: 'var(--surface-container-low)', padding: '1rem', borderRadius: '12px', opacity: 0.6, animation: 'pulse 1.5s infinite' }}>
-              <div style={{ width: '30px', height: '20px', background: 'var(--surface-container-highest)', borderRadius: '4px' }} />
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--surface-container-highest)', margin: '0 1rem' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ width: '50%', height: '16px', background: 'var(--surface-container-highest)', borderRadius: '4px', marginBottom: '0.4rem' }} />
-                <div style={{ width: '30%', height: '12px', background: 'var(--surface-container-high)', borderRadius: '4px' }} />
-              </div>
-            </div>
-          ))}
+      {loading ? (
+        <div style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '3rem 0' }}>
+          Loading...
         </div>
-      )}
-
-      {!loading && members.length === 0 && activeTab === 'overall' && (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👻</div>
-          <h3 style={{ margin: 0, color: 'var(--on-surface)' }}>No Squad Members Yet</h3>
-          <p style={{ color: 'var(--on-surface-variant)', fontSize: '0.9rem' }}>Invite your friends to start the competition.</p>
+      ) : users.length === 0 ? (
+        <div style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '3rem 0' }}>
+          No warriors yet. Start your journey.
         </div>
-      )}
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {users.map((user, index) => {
+            const rank = index + 1;
+            const isMe = user.id === currentUser?.uid;
+            const medalColor = rankColors[rank];
 
-      {!loading && activeTab === 'overall' && members.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {members.map((member, idx) => (
-            <div key={member.id} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              background: 'var(--surface-container-low)', 
-              padding: '1rem', 
-              borderRadius: '12px',
-              border: idx === 0 ? '2px solid var(--tertiary)' : '1px solid var(--outline-variant)'
-            }}>
-              <h2 style={{ width: '30px', margin: 0, color: idx === 0 ? 'var(--tertiary)' : 'var(--on-surface-variant)' }}>
-                #{idx + 1}
-              </h2>
-              <img 
-                src={member.photoURL || `https://ui-avatars.com/api/?name=${member.displayName}`} 
-                alt="Avatar" 
-                style={{ width: '40px', height: '40px', borderRadius: '50%', margin: '0 1rem', border: '2px solid var(--primary)' }} 
-              />
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0 }}>{member.displayName}</h3>
-                <span style={{ fontSize: '0.8rem', color: 'var(--on-surface-variant)' }}>{member.rankTitle}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
-                <div style={{ fontWeight: 'bold' }}>100 pts</div>
-                {currentUser?.uid !== member.id && (
-                  <button 
-                    onClick={() => setWarTarget(member)}
-                    style={{ 
-                      background: 'var(--error-dim)', 
-                      color: 'var(--error)', 
-                      border: '1px solid var(--error)', 
-                      borderRadius: '4px', 
-                      padding: '0.3rem 0.5rem', 
-                      fontSize: '0.7rem', 
-                      cursor: 'pointer',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    ⚔️ WAR
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {activeTab === 'habits' && (
-        <div className="glass-card glow-primary">
-          <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)' }}>
-            Per-habit tracking breakdown coming soon...
-          </p>
-        </div>
-      )}
-
-      {/* War Declaration Modal */}
-      {warTarget && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
-        }}>
-          <div className="glass-card glow-error" style={{ width: '90%', maxWidth: '400px', padding: '2rem' }}>
-            <h2 style={{ color: 'var(--error)', margin: '0 0 1rem 0', textAlign: 'center' }}>DECLARE WAR</h2>
-            <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)' }}>
-              Challenge <strong style={{ color: 'white' }}>{warTarget.displayName}</strong> to a 3-day consistency battle. Loser drops rank!
-            </p>
-            
-            <div style={{ margin: '1.5rem 0' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--on-surface-variant)' }}>
-                Select Struggling Habit:
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                 {[
-                   { id: 'no-junk-food', label: '🍔 No Junk Food' },
-                   { id: 'no-smoking', label: '🚬 No Smoking' },
-                   { id: 'daily-study', label: '📚 Daily Study' },
-                   { id: 'daily-workout', label: '💪 Workout' }
-                 ].map(opt => (
-                   <button
-                     key={opt.id}
-                     onClick={() => setWarHabit(opt.id)}
-                     style={{
-                       padding: '12px 8px',
-                       borderRadius: '12px',
-                       border: `1px solid ${warHabit === opt.id ? 'var(--error)' : 'rgba(255,255,255,0.1)'}`,
-                       background: warHabit === opt.id ? 'rgba(255, 59, 48, 0.1)' : 'rgba(255,255,255,0.05)',
-                       color: warHabit === opt.id ? 'var(--error)' : 'var(--on-surface-variant)',
-                       fontWeight: 'bold',
-                       cursor: 'pointer',
-                       transition: 'all 0.2s',
-                       fontSize: '0.8rem'
-                     }}
-                   >
-                     {opt.label}
-                   </button>
-                 ))}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button 
-                onClick={() => setWarTarget(null)}
-                style={{ flex: 1, background: 'transparent', border: '1px solid var(--outline-variant)', color: 'var(--on-surface)', padding: '1rem', borderRadius: '8px', fontWeight: 'bold' }}
+            return (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.04 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '0.85rem 1rem',
+                  background: isMe
+                    ? 'rgba(var(--primary-rgb, 220,38,38), 0.1)'
+                    : 'var(--surface-container)',
+                  border: isMe
+                    ? '1px solid rgba(var(--primary-rgb, 220,38,38), 0.35)'
+                    : '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '14px',
+                  backdropFilter: 'blur(6px)',
+                }}
               >
-                CANCEL
-              </button>
-              <button 
-                onClick={handleWarSubmit}
-                disabled={isWagingWar || !warHabit}
-                style={{ flex: 1, background: 'var(--error)', border: 'none', color: 'var(--background)', padding: '1rem', borderRadius: '8px', fontWeight: 'bold', cursor: isWagingWar || !warHabit ? 'not-allowed' : 'pointer', opacity: isWagingWar || !warHabit ? 0.5 : 1 }}
-              >
-                {isWagingWar ? 'DECLARING...' : 'ATTACK!'}
-              </button>
-            </div>
-          </div>
+                {/* Rank Number */}
+                <div style={{
+                  minWidth: '28px',
+                  textAlign: 'center',
+                  fontWeight: 900,
+                  fontSize: rank <= 3 ? '1.1rem' : '0.85rem',
+                  color: medalColor ?? 'var(--on-surface-variant)',
+                }}>
+                  {rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : `#${rank}`}
+                </div>
+
+                {/* Name and Rank Title */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    color: isMe ? 'var(--primary)' : 'var(--on-surface)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}>
+                    {user.displayName ?? 'Unknown Warrior'}
+                    {isMe && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', opacity: 0.7 }}>• YOU</span>}
+                  </div>
+                  <div style={{
+                    fontSize: '0.72rem',
+                    color: 'var(--on-surface-variant)',
+                    marginTop: '1px',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                  }}>
+                    {user.rankTitle ?? 'Newcomer'}
+                  </div>
+                </div>
+
+                {/* Streak */}
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{
+                    fontWeight: 800,
+                    fontSize: '1.1rem',
+                    color: isMe ? 'var(--primary)' : 'var(--on-surface)',
+                  }}>
+                    —
+                  </div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--on-surface-variant)', letterSpacing: '0.06em' }}>
+                    STREAK
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
-    </PageTransition>
+    </div>
   );
 };
 

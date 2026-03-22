@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Camera, Trophy, User } from 'lucide-react';
+import { Home, Camera, BarChart2, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MotionLink = motion(Link);
@@ -16,7 +16,7 @@ const BottomNav: React.FC = () => {
   const navItems = [
     { path: '/home', icon: <Home size={24} />, label: 'Feed' },
     { path: '/checkin', icon: <Camera size={24} />, label: 'Check-In' },
-    { path: '/leaderboard', icon: <Trophy size={24} />, label: 'Rankings' },
+    { path: '/analytics', icon: <BarChart2 size={24} />, label: 'Analytics' },
     { path: '/profile', icon: <User size={24} />, label: 'Profile' }
   ];
 

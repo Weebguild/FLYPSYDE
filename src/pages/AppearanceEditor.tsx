@@ -363,9 +363,14 @@ const AppearanceEditor: React.FC = () => {
           <CopyField label="Leaderboard Page Title" value={uiConfig.leaderboardTitle} onChange={v => updateConfig('leaderboardTitle', v)} />
         </Section>
 
+        <Section title="App Copy — Witness" icon={<FileText size={16} />} defaultOpen={false}>
+          <CopyField label="Witness Empty State" value={uiConfig.witnessEmptyState} onChange={v => updateConfig('witnessEmptyState', v)} />
+        </Section>
+
         {/* === FEATURE FLAGS === */}
         <Section title="Feature Flags" icon={<Zap size={16} />} defaultOpen={false}>
           <Toggle label="Leaderboard" sub="Show the Leaderboard tab in navigation" value={uiConfig.showLeaderboard} onChange={v => updateConfig('showLeaderboard', v)} />
+          <Toggle label="Witness" sub="Enable the Witness squad dashboard in Analytics" value={uiConfig.showWitness} onChange={v => updateConfig('showWitness', v)} />
           <Toggle label="Gossip Vault" sub="Enable anonymous gossip posts" value={uiConfig.showGossipVault} onChange={v => updateConfig('showGossipVault', v)} />
           <Toggle label="Streak Badge" sub="Show group streak counter on Home" value={uiConfig.showStreakBadge} onChange={v => updateConfig('showStreakBadge', v)} />
           <Toggle label="Weekly Tribunal" sub="Show the weekly vote banner" value={uiConfig.showWeeklyTribunal} onChange={v => updateConfig('showWeeklyTribunal', v)} />

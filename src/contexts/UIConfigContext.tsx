@@ -22,11 +22,16 @@ export interface UIConfig {
   weeklyTribunalSubtitle: string;
   // Leaderboard copy
   leaderboardTitle: string;
+  // Analytics / Witness copy
+  analyticsTitle: string;
+  witnessTitle: string;
+  witnessEmptyState: string;
   // Feature Flags
   showLeaderboard: boolean;
   showGossipVault: boolean;
   showStreakBadge: boolean;
   showWeeklyTribunal: boolean;
+  showWitness: boolean;
 }
 
 export const UI_DEFAULTS: UIConfig = {
@@ -45,10 +50,14 @@ export const UI_DEFAULTS: UIConfig = {
   weeklyTribunalTitle: '🗳️ WEEKLY TRIBUNAL',
   weeklyTribunalSubtitle: 'Vote for the MVP and Slacker',
   leaderboardTitle: 'HALL OF LEGENDS',
+  analyticsTitle: 'ANALYTICS',
+  witnessTitle: 'WITNESS',
+  witnessEmptyState: 'Your squad is clean. For now.',
   showLeaderboard: true,
   showGossipVault: true,
   showStreakBadge: true,
   showWeeklyTribunal: true,
+  showWitness: true,
 };
 
 const GOOGLE_FONTS_IMPORT: Record<string, string> = {

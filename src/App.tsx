@@ -14,7 +14,7 @@ import Onboarding from './pages/Onboarding';
 const Home = lazy(() => import('./pages/Home'));
 const CheckIn = lazy(() => import('./pages/CheckIn'));
 const Profile = lazy(() => import('./pages/Profile'));
-const Leaderboard = lazy(() => import('./pages/Leaderboard'));
+const Analytics = lazy(() => import('./pages/Analytics'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const Day100Results = lazy(() => import('./pages/Day100Results'));
 const AppearanceEditor = lazy(() => import('./pages/AppearanceEditor'));
@@ -40,7 +40,8 @@ function AnimatedRoutes() {
           <Route path="/home" element={<Home />} />
           <Route path="/checkin" element={<CheckIn />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/leaderboard" element={<Navigate to="/analytics" />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/day-100" element={<Day100Results />} />
           <Route path="/appearance" element={<AppearanceEditor />} />
