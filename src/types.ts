@@ -39,8 +39,11 @@ export interface FeedPost {
   userName: string;
   userPhotoURL: string;
   type: FeedPostType;
-  imageURL?: string; // Daily photo or slip contextual image
-  habitId?: HabitId; // Relevent if type === 'slip'
+  imageURL?: string; // Daily photo or contextual image
+  contextText?: string; // Note from user replacing "Daily Photo" tag
+  habitId?: HabitId; // Legacy/Specific slip
+  completedHabits?: string[]; // unified check-in
+  slippedHabits?: string[]; // unified check-in
   weight?: number; // Relevent if type === 'weight'
   targetId?: string;
   targetName?: string;

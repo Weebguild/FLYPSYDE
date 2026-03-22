@@ -223,8 +223,31 @@ const Home: React.FC = () => {
           {/* Post Content based on type */}
           {post.type === 'photo' && post.imageURL && (
             <div style={{ marginBottom: '1rem' }}>
-              <p style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Daily Photo</p>
+              <p style={{ marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1rem' }}>{post.contextText || 'Daily Check-In'}</p>
               <img src={post.imageURL} alt="Daily" style={{ width: '100%', borderRadius: '8px', border: '1px solid var(--outline-variant)' }} />
+              
+              {((post.completedHabits && post.completedHabits.length > 0) || (post.slippedHabits && post.slippedHabits.length > 0)) && (
+                <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {post.completedHabits && post.completedHabits.length > 0 && (
+                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                       {post.completedHabits.map(h => (
+                         <span key={h} style={{ background: 'rgba(142,255,113,0.2)', border: '1px solid var(--tertiary)', color: 'var(--tertiary)', padding: '4px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                           ✓ {h.replace(/-/g, ' ').toUpperCase()}
+                         </span>
+                       ))}
+                     </div>
+                  )}
+                  {post.slippedHabits && post.slippedHabits.length > 0 && (
+                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                       {post.slippedHabits.map(h => (
+                         <span key={h} style={{ background: 'rgba(255,59,48,0.2)', border: '1px solid var(--error)', color: 'var(--error)', padding: '4px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                           ✗ {h.replace(/-/g, ' ').toUpperCase()} SLIP
+                         </span>
+                       ))}
+                     </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

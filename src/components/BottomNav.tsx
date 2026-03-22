@@ -8,8 +8,8 @@ const MotionLink = motion(Link);
 const BottomNav: React.FC = () => {
   const location = useLocation();
 
-  // Hide nav on onboarding or day-zero
-  if (location.pathname === '/' || location.pathname === '/onboarding' || location.pathname === '/day-zero') {
+  // Hide nav on onboarding, day-zero, or appearance editor
+  if (location.pathname === '/' || location.pathname === '/onboarding' || location.pathname === '/day-zero' || location.pathname === '/appearance') {
     return null;
   }
 

@@ -6,12 +6,13 @@ import { uploadToCloudinary } from '../utils/cloudinary';
 import { calculateCurrentDay } from '../utils/dateUtils';
 import { db } from '../firebase';
 import { ref, push, serverTimestamp, update } from 'firebase/database';
-import SlipLogModal from '../components/SlipLogModal';
+
 import Confetti from 'react-confetti';
 import toast from 'react-hot-toast';
 import PageTransition from '../components/PageTransition';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import { Camera, CheckCircle2, Circle, Clock, Check as CheckIcon, Image as ImageIcon } from 'lucide-react';
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
+import { Camera, CheckCircle2, Circle, Clock, XCircle, Image as ImageIcon } from 'lucide-react';
+import { useUIConfig } from '../contexts/UIConfigContext';
 
 const HABITS = [
   { id: 'no-junk-food', label: 'No Junk Food' },
@@ -24,6 +25,7 @@ const CheckIn = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
   const { currentGroup } = useGroup();
+  const { uiConfig } = useUIConfig();
   
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,17 +35,78 @@ const CheckIn = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
   const [completedHabits, setCompletedHabits] = useState<string[]>([]);
+  const [slippedHabits, setSlippedHabits] = useState<string[]>([]);
+  const [contextText, setContextText] = useState('');
   const [isComplete, setIsComplete] = useState(false); // Controls the polaroid view
   const [timeLeft, setTimeLeft] = useState('');
   const [greeting, setGreeting] = useState('Welcome');
   const [timeGradient, setTimeGradient] = useState('linear-gradient(135deg, var(--primary), var(--primary-container))');
 
-  // Parallax properties
+  // Parallax — low damping = visible spring overshoot on release
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const rotateX = useTransform(y, [-100, 100], [10, -10]);
-  const rotateY = useTransform(x, [-100, 100], [-10, 10]);
+  const springConfig = { stiffness: 120, damping: 8, mass: 0.6 };
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+  const rotateX = useTransform(springY, [-120, 120], [18, -18]);
+  const rotateY = useTransform(springX, [-120, 120], [-18, 18]);
 
+  const cardRef = React.useRef<HTMLDivElement>(null);
+  const tapStartTime = React.useRef(0);
+  const tapStartPos = React.useRef({ x: 0, y: 0 });
+
+  const setTiltFromPoint = (clientX: number, clientY: number) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    x.set(clientX - (rect.left + rect.width / 2));
+    y.set(clientY - (rect.top + rect.height / 2));
+  };
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    setTiltFromPoint(event.clientX, event.clientY);
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    const t = event.touches[0];
+    tapStartTime.current = Date.now();
+    tapStartPos.current = { x: t.clientX, y: t.clientY };
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    const t = event.touches[0];
+    if (t) setTiltFromPoint(t.clientX, t.clientY);
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const duration = Date.now() - tapStartTime.current;
+    const end = event.changedTouches[0];
+    const dx = Math.abs(end.clientX - tapStartPos.current.x);
+    const dy = Math.abs(end.clientY - tapStartPos.current.y);
+
+    if (duration < 180 && dx < 12 && dy < 12) {
+      // Quick tap — flick toward the tap point, then spring back
+      if (cardRef.current) {
+        const rect = cardRef.current.getBoundingClientRect();
+        const offsetX = end.clientX - (rect.left + rect.width / 2);
+        const offsetY = end.clientY - (rect.top + rect.height / 2);
+        x.set(offsetX * 1.6);
+        y.set(offsetY * 1.6);
+        // Short delay so the tilt is visible, then spring snaps back
+        setTimeout(() => { x.set(0); y.set(0); }, 80);
+      }
+    } else {
+      // Hold/drag release — normal spring-back
+      x.set(0);
+      y.set(0);
+    }
+  };
+
+  const resetTilt = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  // Restore today's check-in from localStorage
   useEffect(() => {
     if (currentUser) {
       const today = new Date().toDateString();
@@ -53,24 +116,13 @@ const CheckIn = () => {
           const data = JSON.parse(stored);
           setPreviewURL(data.imageURL);
           setCompletedHabits(data.habits || []);
+          setSlippedHabits(data.slippedHabits || []);
+          setContextText(data.contextText || '');
           setIsComplete(true);
         } catch(e){}
       }
     }
   }, [currentUser]);
-
-  // Handle Parallax
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    x.set(event.clientX - centerX);
-    y.set(event.clientY - centerY);
-  };
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
 
   useEffect(() => {
     // Determine Greeting & Gradient based on local time
@@ -115,11 +167,21 @@ const CheckIn = () => {
     }
   };
 
-  const toggleHabit = (id: string) => {
+  const cycleHabit = (id: string) => {
     if (navigator.vibrate) navigator.vibrate(20);
-    setCompletedHabits(prev => 
-      prev.includes(id) ? prev.filter(h => h !== id) : [...prev, id]
-    );
+    const isWon = completedHabits.includes(id);
+    const isSlipped = slippedHabits.includes(id);
+    if (!isWon && !isSlipped) {
+      // empty → win
+      setCompletedHabits(prev => [...prev, id]);
+    } else if (isWon) {
+      // win → slip
+      setCompletedHabits(prev => prev.filter(h => h !== id));
+      setSlippedHabits(prev => [...prev, id]);
+    } else {
+      // slip → empty
+      setSlippedHabits(prev => prev.filter(h => h !== id));
+    }
   };
 
   const handlePost = async () => {
@@ -145,8 +207,10 @@ const CheckIn = () => {
         userPhotoURL: userProfile.photoURL,
         type: 'photo',
         imageURL: photoURL,
+        contextText: contextText,
         dayNumber: dayNumber,
         completedHabits: completedHabits,
+        slippedHabits: slippedHabits,
         timestamp: serverTimestamp(),
         reactions: {}
       });
@@ -159,7 +223,9 @@ const CheckIn = () => {
       
       localStorage.setItem(`checkIn_${currentUser.uid}_${new Date().toDateString()}`, JSON.stringify({
         imageURL: photoURL,
-        habits: completedHabits
+        habits: completedHabits,
+        slippedHabits: slippedHabits,
+        contextText: contextText
       }));
 
       setShowConfetti(true);
@@ -301,13 +367,17 @@ const CheckIn = () => {
 
         {/* 3D Interactive Card */}
         <motion.div 
+          ref={cardRef}
           variants={itemVariants}
           onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
+          onMouseLeave={resetTilt}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           style={{
             rotateX,
             rotateY,
-            transformPerspective: 1000,
+            transformPerspective: 800,
             zIndex: 10
           }}
         >
@@ -361,35 +431,38 @@ const CheckIn = () => {
             
             {/* Checklist Section inside the card */}
             <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.4)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-              <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--on-surface-variant)', fontWeight: 700 }}>Daily Wins</p>
+              <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--on-surface-variant)', fontWeight: 700 }}>{uiConfig.habitsLabel}</p>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' }}>{uiConfig.habitsHint}</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 {HABITS.map(habit => {
-                  const isChecked = completedHabits.includes(habit.id);
+                  const isWon = completedHabits.includes(habit.id);
+                  const isSlipped = slippedHabits.includes(habit.id);
                   return (
-                    <motion.div 
-                      key={habit.id} 
-                      onClick={() => toggleHabit(habit.id)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.95 }}
+                    <motion.div
+                      key={habit.id}
+                      onClick={() => cycleHabit(habit.id)}
+                      whileTap={{ scale: 0.93 }}
                       animate={{
-                        background: isChecked ? 'rgba(142,255,113,0.1)' : 'rgba(255,255,255,0.03)',
-                        borderColor: isChecked ? 'var(--tertiary)' : 'rgba(255,255,255,0.08)',
-                        boxShadow: isChecked ? '0 8px 24px rgba(142,255,113,0.15)' : 'none'
+                        background: isWon ? 'rgba(142,255,113,0.12)' : isSlipped ? 'rgba(255,59,48,0.12)' : 'rgba(255,255,255,0.03)',
+                        borderColor: isWon ? 'var(--tertiary)' : isSlipped ? 'var(--error)' : 'rgba(255,255,255,0.08)',
                       }}
-                      style={{ 
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer',
-                        padding: '16px 12px', borderRadius: '16px',
-                        borderWidth: '1px', borderStyle: 'solid'
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                        padding: '18px 12px', borderRadius: '16px',
+                        borderWidth: '1px', borderStyle: 'solid',
+                        cursor: 'pointer', userSelect: 'none'
                       }}
                     >
-                      {isChecked ? (
-                        <CheckCircle2 color="var(--tertiary)" size={28} style={{ filter: 'drop-shadow(0 0 12px rgba(142,255,113,0.6))' }} />
+                      {isWon ? (
+                        <CheckCircle2 color="var(--tertiary)" size={28} style={{ filter: 'drop-shadow(0 0 10px rgba(142,255,113,0.6))' }} />
+                      ) : isSlipped ? (
+                        <XCircle color="var(--error)" size={28} style={{ filter: 'drop-shadow(0 0 10px rgba(255,59,48,0.6))' }} />
                       ) : (
-                        <Circle color="var(--on-surface-variant)" size={28} />
+                        <Circle color="rgba(255,255,255,0.25)" size={28} />
                       )}
-                      <span style={{ 
+                      <span style={{
                         fontSize: '0.85rem', fontWeight: 600, textAlign: 'center',
-                        color: isChecked ? 'var(--tertiary)' : 'var(--on-surface)'
+                        color: isWon ? 'var(--tertiary)' : isSlipped ? 'var(--error)' : 'var(--on-surface-variant)'
                       }}>
                         {habit.label}
                       </span>
@@ -399,41 +472,42 @@ const CheckIn = () => {
               </div>
 
               {previewURL && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                  className="button-primary glow-primary"
-                  onClick={handlePost}
-                  disabled={loading}
-                  style={{ width: '100%', marginTop: '1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                >
-                  {loading ? 'SECURING...' : `SECURE DAY ${calculateCurrentDay(userProfile?.joinedAt)}`}
-                </motion.button>
+                <div style={{ marginTop: '1.5rem' }}>
+                  <input
+                    type="text"
+                    placeholder={uiConfig.contextPlaceholder}
+                    value={contextText}
+                    onChange={(e) => setContextText(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '8px',
+                      color: 'var(--on-surface)',
+                      fontSize: '0.9rem',
+                      fontFamily: 'var(--font-body)',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    className="button-primary glow-primary"
+                    onClick={handlePost}
+                    disabled={loading}
+                    style={{ width: '100%', marginTop: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                  >
+                     {loading ? 'SECURING...' : `${uiConfig.secureButtonText} ${calculateCurrentDay(userProfile?.joinedAt)}`}
+                  </motion.button>
+                </div>
               )}
             </div>
           </div>
         </motion.div>
 
-        {/* Motivational Quote & Slip */}
-        <motion.div variants={itemVariants} style={{ marginTop: '2rem', textAlign: 'center' }}>
-          <p style={{ fontStyle: 'italic', color: 'var(--on-surface-variant)', fontSize: '0.95rem', lineHeight: 1.5 }}>
-            "Small disciplines repeated with consistency every day lead to great achievements gained slowly over time."
-          </p>
-          
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            style={{ 
-              background: 'transparent', border: 'none', color: 'var(--error-dim)', 
-              textDecoration: 'underline', marginTop: '1.5rem', cursor: 'pointer',
-              fontSize: '0.9rem', fontWeight: 600, fontFamily: 'var(--font-display)', letterSpacing: '0.05em'
-            }}
-          >
-            LOG A SLIP INSTEAD
-          </button>
-        </motion.div>
-
       </motion.div>
 
-      <SlipLogModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </PageTransition>
   );
 };

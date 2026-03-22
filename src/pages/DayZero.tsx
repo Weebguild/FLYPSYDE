@@ -8,11 +8,13 @@ import { ref, get, set, push, update, onValue, serverTimestamp } from 'firebase/
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Users, Plus, LogIn, ArrowRight, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useUIConfig } from '../contexts/UIConfigContext';
 
 const DayZero: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
   const { currentGroup } = useGroup();
+  const { uiConfig } = useUIConfig();
   
   const [authLoading, setAuthLoading] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -160,6 +162,43 @@ const DayZero: React.FC = () => {
     }
   };
 
+  const handleDevBypass = async () => {
+    try {
+      let uid = currentUser?.uid;
+      if (!uid) {
+        // NOTE: Google Auth popup fails on network IPs unless added to Firebase Authorized Domains
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        uid = result.user.uid;
+      }
+      
+      const devCode = 'DEV123';
+      await update(ref(db, `groups/${devCode}`), {
+        groupCode: devCode,
+        adminUserId: uid,
+        memberIds: [uid],
+        status: 'active',
+        challengeStartDate: serverTimestamp(),
+        groupStreak: { currentStreak: 0, lastBrokenDate: null, lastBrokenByUserId: null }
+      });
+      
+      await update(ref(db, `users/${uid}`), {
+        id: uid,
+        displayName: currentUser?.displayName || 'Dev Tester',
+        groupCode: devCode,
+        baselinePhotoURL: 'https://via.placeholder.com/150',
+        startingWeight: 75,
+        currentWeight: 75,
+        joinedAt: serverTimestamp()
+      });
+      
+      toast.success('Bypassed to Dev Mode');
+      navigate('/home');
+    } catch (e: any) {
+      toast.error('Dev bypass failed: ' + e.message);
+    }
+  };
+
   // State 3: The True Waiting Room
   if (currentGroup && currentGroup.status === 'waiting') {
     return (
@@ -204,6 +243,19 @@ const DayZero: React.FC = () => {
             </>
           )}
         </div>
+        
+        {import.meta.env.DEV && (
+          <button 
+            onClick={handleDevBypass}
+            style={{
+              marginTop: '1rem', background: 'var(--error-dim)', border: '1px solid var(--error)',
+              color: 'white', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer',
+              fontWeight: 'bold', fontSize: '0.9rem', width: '100%'
+            }}
+          >
+            [DEV] BYPASS 100-DAY PROTOCOL
+          </button>
+        )}
       </div>
     );
   }
@@ -223,10 +275,12 @@ const DayZero: React.FC = () => {
 
         <div style={{ margin: 'auto 0' }}>
           <h1 className="display" style={{ fontSize: '3.5rem', lineHeight: 1, marginBottom: '1rem', color: 'var(--on-surface)' }}>
-            100 DAYS.<br/>NO EXCUSES.
+            {uiConfig.dayZeroHeadline.split('\n').map((line, i) => (
+              <span key={i}>{line}{i < uiConfig.dayZeroHeadline.split('\n').length - 1 && <br/>}</span>
+            ))}
           </h1>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '1.1rem', margin: '0 auto 2rem auto', maxWidth: '300px' }}>
-            Survive the gauntlet together, or fail publicly.
+            {uiConfig.dayZeroTagline}
           </p>
         </div>
 
@@ -240,7 +294,7 @@ const DayZero: React.FC = () => {
                   disabled={authLoading || isProcessing}
                   style={{ padding: '1.5rem', border: '1px solid var(--primary)', background: 'transparent', color: 'var(--on-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', fontWeight: 'bold' }}
                 >
-                  <Plus /> CREATE SQUAD
+                  <Plus /> {uiConfig.createSquadLabel}
                 </button>
                 <button 
                   className="glass-card" 
@@ -248,7 +302,7 @@ const DayZero: React.FC = () => {
                   disabled={authLoading || isProcessing}
                   style={{ padding: '1.5rem', background: 'var(--surface-container)', color: 'var(--on-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', fontWeight: 'bold' }}
                 >
-                  <Users /> JOIN SQUAD
+                  <Users /> {uiConfig.joinSquadLabel}
                 </button>
               </motion.div>
             ) : (
@@ -277,6 +331,20 @@ const DayZero: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          
+          {import.meta.env.DEV && (
+            <button 
+              onClick={handleDevBypass}
+              style={{
+                marginTop: '1rem', background: 'var(--error-dim)', border: '1px solid var(--error)',
+                color: 'white', padding: '0.8rem', borderRadius: '8px', cursor: 'pointer',
+                fontWeight: 'bold', fontSize: '0.9rem', width: '100%'
+              }}
+            >
+              [DEV] BYPASS 100-DAY PROTOCOL
+            </button>
+          )}
+
         </div>
       </div>
     </div>

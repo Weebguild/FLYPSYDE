@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AnimatePresence } from 'framer-motion';
 import BottomNav from './components/BottomNav';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { UIConfigProvider } from './contexts/UIConfigContext';
 
 // Keep essential onboarding flows eagerly loaded
 import DayZero from './pages/DayZero';
@@ -16,6 +17,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const Day100Results = lazy(() => import('./pages/Day100Results'));
+const AppearanceEditor = lazy(() => import('./pages/AppearanceEditor'));
 
 // Fallback loader while downloading the bundle for a tab
 const PageLoader = () => (
@@ -41,6 +43,7 @@ function AnimatedRoutes() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/day-100" element={<Day100Results />} />
+          <Route path="/appearance" element={<AppearanceEditor />} />
         </Routes>
       </Suspense>
     </AnimatePresence>
@@ -49,22 +52,24 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <Router>
-      <Toaster 
-        position="top-center" 
-        toastOptions={{ 
-          style: { 
-            background: 'rgba(38, 38, 38, 0.9)', 
-            color: '#fff', 
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(73, 72, 71, 0.3)' 
-          } 
-        }} 
-      />
-      <BottomNav />
-      <AnimatedRoutes />
-      <SpeedInsights />
-    </Router>
+    <UIConfigProvider>
+      <Router>
+        <Toaster 
+          position="top-center" 
+          toastOptions={{ 
+            style: { 
+              background: 'rgba(38, 38, 38, 0.9)', 
+              color: '#fff', 
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(73, 72, 71, 0.3)' 
+            } 
+          }} 
+        />
+        <BottomNav />
+        <AnimatedRoutes />
+        <SpeedInsights />
+      </Router>
+    </UIConfigProvider>
   );
 }
 

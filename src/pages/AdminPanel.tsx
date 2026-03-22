@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { 
   ShieldAlert, Users, MessageSquareOff, Power, BellRing, 
   Skull, Trash2, Edit3, Shield, UserX, AlertTriangle, Zap, Megaphone,
-  ArrowLeft, Lock, Trash, EyeOff, RadioTower, Hand, VolumeX, History, X, Search, UserCheck, Users2
+  ArrowLeft, Lock, Trash, EyeOff, RadioTower, Hand, VolumeX, History, X, Search, UserCheck, Users2, Palette
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -695,21 +695,19 @@ const AdminPanel = () => {
       {/* Header */}
       <div style={{ padding: '2rem 1.5rem', background: 'linear-gradient(180deg, rgba(255, 59, 48, 0.15) 0%, rgba(9, 9, 11, 0) 100%)', borderBottom: '1px solid rgba(255, 59, 48, 0.2)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
             <button 
               onClick={() => navigate(-1)}
               style={{ background: 'rgba(255, 255, 255, 0.05)', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}
             >
               <ArrowLeft size={22} />
             </button>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-              <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '8px', borderRadius: '12px', transition: 'all 0.3s' }}>
-                <ShieldAlert size={28} color={isReverse ? "#10b981" : "var(--error)"} />
-              </div>
-              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s', lineHeight: 1.1 }}>
-                {isReverse ? 'Restoration Hub' : 'Command Center'}
-              </h1>
+            <div style={{ background: isReverse ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 59, 48, 0.2)', padding: '8px', borderRadius: '12px', transition: 'all 0.3s', flexShrink: 0 }}>
+              <ShieldAlert size={24} color={isReverse ? "#10b981" : "var(--error)"} />
             </div>
+            <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: isReverse ? '#10b981' : 'var(--error)', transition: 'all 0.3s', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
+              {isReverse ? 'Restoration Hub' : 'Command Center'}
+            </h1>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -721,10 +719,17 @@ const AdminPanel = () => {
                <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: isReverse ? '#10b981' : 'var(--on-surface-variant)', transition: 'color 0.3s', letterSpacing: '0.5px' }}>RESTORE</span>
                <input type="checkbox" checked={isReverse} onChange={(e) => setIsReverse(e.target.checked)} style={{ display: 'none' }} />
             </label>
-            <p style={{ margin: 0, color: 'var(--on-surface-variant)', fontSize: '0.9rem', maxWidth: '320px', lineHeight: '1.4' }}>
-              Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
-            </p>
+            {/* UI Editor portal button */}
+            <button
+              onClick={() => navigate('/appearance')}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '20px', background: 'rgba(255,137,171,0.12)', border: '1px solid rgba(255,137,171,0.35)', color: 'var(--primary)', fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+            >
+              <Palette size={14} /> UI EDITOR
+            </button>
           </div>
+          <p style={{ margin: 0, color: 'var(--on-surface-variant)', fontSize: '0.9rem', maxWidth: '320px', lineHeight: '1.4' }}>
+            Absolute nuclear authority over the FLYPSYDE ecosystem. With great power comes zero accountability.
+          </p>
         </div>
       </div>
 
