@@ -7,9 +7,6 @@ import {
 } from 'lucide-react';
 import { useUIConfig, UI_DEFAULTS, UIConfig } from '../contexts/UIConfigContext';
 import toast from 'react-hot-toast';
-import Home from './Home';
-import CheckIn from './CheckIn';
-import Profile from './Profile';
 
 // --- Font Options ---
 const FONTS = [
@@ -25,28 +22,16 @@ const Section: React.FC<{ title: string; icon: React.ReactNode; children: React.
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div style={{ borderRadius: '20px', border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden', background: 'rgba(255,255,255,0.02)', marginBottom: '1rem' }}>
-      <button
-        onClick={() => setOpen(o => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.1rem 1.2rem', background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}
-      >
+      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.1rem 1.2rem', background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 700, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          <span style={{ color: 'var(--primary)' }}>{icon}</span>
-          {title}
+          <span style={{ color: 'var(--primary)' }}>{icon}</span>{title}
         </div>
         {open ? <ChevronUp size={18} color="var(--on-surface-variant)" /> : <ChevronDown size={18} color="var(--on-surface-variant)" />}
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div style={{ padding: '0 1.2rem 1.2rem 1.2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-              {children}
-            </div>
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
+            <div style={{ padding: '0 1.2rem 1.2rem 1.2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -61,10 +46,7 @@ const Toggle: React.FC<{ label: string; sub: string; value: boolean; onChange: (
       <div style={{ fontWeight: 600, fontSize: '0.95rem', color: '#fff' }}>{label}</div>
       <div style={{ fontSize: '0.78rem', color: 'var(--on-surface-variant)', marginTop: '2px' }}>{sub}</div>
     </div>
-    <button
-      onClick={() => onChange(!value)}
-      style={{ flexShrink: 0, width: '48px', height: '26px', borderRadius: '13px', background: value ? 'var(--primary)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.25s' }}
-    >
+    <button onClick={() => onChange(!value)} style={{ flexShrink: 0, width: '48px', height: '26px', borderRadius: '13px', background: value ? 'var(--primary)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.25s' }}>
       <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '3px', left: value ? '25px' : '3px', transition: 'left 0.22s', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }} />
     </button>
   </div>
@@ -75,81 +57,185 @@ const CopyField: React.FC<{ label: string; value: string; onChange: (v: string) 
   <div style={{ marginTop: '1rem' }}>
     <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--on-surface-variant)', textTransform: 'uppercase', marginBottom: '6px' }}>{label}</label>
     {multiline ? (
-      <textarea
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        rows={2}
-        style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-body)', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
-      />
+      <textarea value={value} onChange={e => onChange(e.target.value)} rows={2} style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-body)', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }} />
     ) : (
-      <input
-        type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-body)', outline: 'none', boxSizing: 'border-box' }}
-      />
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: '10px 12px', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.95rem', fontFamily: 'var(--font-body)', outline: 'none', boxSizing: 'border-box' }} />
     )}
   </div>
 );
 
+// ─── Static Screen Mockups ────────────────────────────────────────────────────
+const mockBg = { background: '#0e0e0e', minHeight: '100%', color: '#fff', fontFamily: 'var(--font-body)', fontSize: 'var(--font-size-base, 16px)', padding: '1.5rem', boxSizing: 'border-box' as const };
+
+const MockDayZero: React.FC = () => {
+  const { uiConfig } = useUIConfig();
+  return (
+    <div style={{ ...mockBg, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', minHeight: '600px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '-10%', left: '-20%', width: '70%', height: '70%', background: 'var(--primary-dim)', filter: 'blur(80px)', opacity: 0.25, borderRadius: '50%' }} />
+      <div style={{ position: 'absolute', bottom: '-10%', right: '-20%', width: '60%', height: '60%', background: 'var(--secondary-dim)', filter: 'blur(80px)', opacity: 0.15, borderRadius: '50%' }} />
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', paddingTop: '2rem' }}>
+        <h2 style={{ color: 'var(--primary)', fontStyle: 'italic', fontSize: '1.3rem', margin: 0 }}>FLYPSYDE</h2>
+        <div style={{ margin: '2rem 0' }}>
+          <h1 style={{ fontSize: '2.8rem', fontWeight: 900, lineHeight: 1, margin: '0 0 1rem', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+            {uiConfig.dayZeroHeadline.split('\n').map((l, i) => <div key={i}>{l}</div>)}
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1rem', maxWidth: '260px', lineHeight: 1.4, margin: '0 auto' }}>{uiConfig.dayZeroTagline}</p>
+        </div>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '300px' }}>
+          <div style={{ padding: '1.1rem', borderRadius: '12px', border: '1px solid var(--primary)', color: '#fff', fontWeight: 700, textAlign: 'center', background: 'rgba(255,137,171,0.08)', fontSize: '0.95rem' }}>{uiConfig.createSquadLabel}</div>
+          <div style={{ padding: '1.1rem', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: '#fff', fontWeight: 700, textAlign: 'center', fontSize: '0.95rem' }}>{uiConfig.joinSquadLabel}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MockHome: React.FC = () => {
+  const { uiConfig } = useUIConfig();
+  return (
+    <div style={{ ...mockBg }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--primary)', fontStyle: 'italic' }}>FLYPSYDE</h2>
+        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+      </div>
+      {/* Streak badge */}
+      {uiConfig.showStreakBadge && (
+        <div style={{ background: 'rgba(255,137,171,0.1)', border: '1px solid rgba(255,137,171,0.2)', borderRadius: '16px', padding: '0.8rem 1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem' }}>🔥 GROUP STREAK</span>
+          <span style={{ color: '#fff', fontWeight: 800 }}>14 days</span>
+        </div>
+      )}
+      {/* Tribunal banner */}
+      {uiConfig.showWeeklyTribunal && (
+        <div style={{ background: 'rgba(142,255,113,0.08)', border: '1px solid rgba(142,255,113,0.2)', borderRadius: '16px', padding: '0.8rem 1rem', marginBottom: '1rem' }}>
+          <div style={{ color: 'var(--tertiary)', fontWeight: 700, fontSize: '0.85rem' }}>{uiConfig.weeklyTribunalTitle}</div>
+          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '2px' }}>{uiConfig.weeklyTribunalSubtitle}</div>
+        </div>
+      )}
+      {/* Feed cards */}
+      {[1].map(i => (
+        <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '16px', padding: '1rem', marginBottom: '0.75rem', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.12)' }} />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Alex R.</div>
+              <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Day 23 · 2h ago</div>
+            </div>
+          </div>
+          <div style={{ height: 120, borderRadius: '12px', background: 'rgba(255,255,255,0.06)', marginBottom: '0.75rem' }} />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span style={{ background: 'rgba(142,255,113,0.15)', color: 'var(--tertiary)', fontSize: '0.72rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px' }}>✓ Workout</span>
+            <span style={{ background: 'rgba(255,59,48,0.15)', color: 'var(--error)', fontSize: '0.72rem', fontWeight: 700, padding: '3px 8px', borderRadius: '6px' }}>✗ Diet</span>
+          </div>
+        </div>
+      ))}
+      <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem' }}>{uiConfig.emptyFeedMessage}</div>
+    </div>
+  );
+};
+
+const MockCheckIn: React.FC = () => {
+  const { uiConfig } = useUIConfig();
+  return (
+    <div style={{ ...mockBg }}>
+      <h2 style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: '0.25rem' }}>Good Morning, Challenger</h2>
+      <h1 style={{ fontSize: '2rem', margin: '0 0 0.25rem', background: 'linear-gradient(135deg, #FFB75E, #ED8F03)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>DAY 23</h1>
+      <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.5rem' }}>⏱ 10:32:14 LEFT TODAY</div>
+      <div style={{ background: 'rgba(10,10,10,0.55)', border: '1px solid rgba(73,72,71,0.15)', borderRadius: '12px', overflow: 'hidden' }}>
+        {/* Photo area */}
+        <div style={{ height: 140, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <span style={{ fontSize: '2rem' }}>📷</span>
+        </div>
+        {/* Habits */}
+        <div style={{ padding: '1rem' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>{uiConfig.habitsLabel}</p>
+          <p style={{ margin: '0 0 0.75rem', fontSize: '0.68rem', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>{uiConfig.habitsHint}</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {['No Junk Food','No Smoking','Daily Study','Daily Workout'].map((h, i) => (
+              <div key={h} style={{ padding: '12px 8px', borderRadius: '12px', border: `1px solid ${i === 0 ? 'rgba(142,255,113,0.4)' : i === 1 ? 'rgba(255,59,48,0.4)' : 'rgba(255,255,255,0.08)'}`, background: i === 0 ? 'rgba(142,255,113,0.08)' : i === 1 ? 'rgba(255,59,48,0.08)' : 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1rem' }}>{i === 0 ? '✅' : i === 1 ? '❌' : '○'}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, textAlign: 'center', color: i === 0 ? 'var(--tertiary)' : i === 1 ? 'var(--error)' : 'rgba(255,255,255,0.5)' }}>{h}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '1rem', padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', color: 'rgba(255,255,255,0.3)', fontSize: '0.82rem' }}>{uiConfig.contextPlaceholder}</div>
+          <div style={{ marginTop: '0.75rem', padding: '0.9rem', borderRadius: '8px', background: 'linear-gradient(135deg, var(--primary), var(--primary-container))', color: '#fff', fontWeight: 800, textAlign: 'center', fontSize: '0.9rem', letterSpacing: '0.05em' }}>{uiConfig.secureButtonText} 23</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MockProfile: React.FC = () => (
+  <div style={{ ...mockBg }}>
+    <div style={{ textAlign: 'center', paddingTop: '1.5rem' }}>
+      <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', margin: '0 auto 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.8rem' }}>👤</div>
+      <h2 style={{ margin: '0 0 0.25rem', fontSize: '1.3rem', fontWeight: 800 }}>Alex Reyes</h2>
+      <p style={{ margin: '0 0 0.25rem', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700 }}>Sergeant · Day 23</p>
+      <p style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem' }}>Squad: ALPHA-3</p>
+    </div>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '1.5rem' }}>
+      {[['23', 'Days In'], ['18', 'Wins'], ['5', 'Slips']].map(([val, label]) => (
+        <div key={label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '0.9rem', textAlign: 'center', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)' }}>{val}</div>
+          <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 // --- Preview Sheet ---
-const PREVIEW_SCREENS: { id: 'home' | 'checkin' | 'profile'; label: string }[] = [
+type PreviewScreen = 'dayzero' | 'home' | 'checkin' | 'profile';
+const PREVIEW_SCREENS: { id: PreviewScreen; label: string }[] = [
+  { id: 'dayzero', label: 'Day Zero' },
   { id: 'home', label: 'Home' },
   { id: 'checkin', label: 'Check-In' },
   { id: 'profile', label: 'Profile' },
 ];
 
 const PreviewSheet: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const [activeScreen, setActiveScreen] = useState<'home' | 'checkin' | 'profile'>('home');
+  const [activeScreen, setActiveScreen] = useState<PreviewScreen>('dayzero');
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)', zIndex: 9999, display: 'flex', flexDirection: 'column' }}
       onClick={onClose}
     >
       <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
+        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 280 }}
         onClick={e => e.stopPropagation()}
-        style={{ marginTop: 'auto', background: '#09090b', borderTopLeftRadius: '28px', borderTopRightRadius: '28px', height: '90vh', display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ marginTop: 'auto', background: '#09090b', borderTopLeftRadius: '28px', borderTopRightRadius: '28px', height: '92vh', display: 'flex', flexDirection: 'column', borderTop: '1px solid rgba(255,255,255,0.08)' }}
       >
         {/* Sheet header */}
-        <div style={{ padding: '1rem 1.25rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '1rem 1.25rem 0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.9rem', color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
             <Smartphone size={16} /> Live Preview
           </div>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>CLOSE</button>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', borderRadius: '20px', padding: '6px 14px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>CLOSE</button>
         </div>
 
-        {/* Screen tab switcher */}
-        <div style={{ display: 'flex', gap: '8px', padding: '0.5rem 1.25rem' }}>
+        {/* Screen tab switcher — scrollable so all 4 fit */}
+        <div style={{ display: 'flex', gap: '8px', padding: '0.5rem 1.25rem', overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
           {PREVIEW_SCREENS.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActiveScreen(s.id)}
-              style={{ padding: '6px 16px', borderRadius: '20px', border: `1px solid ${activeScreen === s.id ? 'var(--primary)' : 'rgba(255,255,255,0.1)'}`, background: activeScreen === s.id ? 'rgba(255,137,171,0.15)' : 'transparent', color: activeScreen === s.id ? 'var(--primary)' : 'var(--on-surface-variant)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s' }}
-            >
+            <button key={s.id} onClick={() => setActiveScreen(s.id)} style={{ flexShrink: 0, padding: '6px 16px', borderRadius: '20px', border: `1px solid ${activeScreen === s.id ? 'var(--primary)' : 'rgba(255,255,255,0.1)'}`, background: activeScreen === s.id ? 'rgba(255,137,171,0.15)' : 'transparent', color: activeScreen === s.id ? 'var(--primary)' : 'var(--on-surface-variant)', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s' }}>
               {s.label}
             </button>
           ))}
         </div>
 
-        {/* Preview content — real components, CSS vars already applied globally */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
-          <div style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-            <AnimatePresence mode="wait">
-              <motion.div key={activeScreen} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-                {activeScreen === 'home' && <Home />}
-                {activeScreen === 'checkin' && <CheckIn />}
-                {activeScreen === 'profile' && <Profile />}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+        {/* Mockup content */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={activeScreen} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+              {activeScreen === 'dayzero' && <MockDayZero />}
+              {activeScreen === 'home' && <MockHome />}
+              {activeScreen === 'checkin' && <MockCheckIn />}
+              {activeScreen === 'profile' && <MockProfile />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </motion.div>
     </motion.div>
