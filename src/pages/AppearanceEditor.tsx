@@ -140,7 +140,8 @@ const MockCheckIn: React.FC = () => {
     <div style={{ ...mockBg }}>
       <h2 style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: '0.25rem' }}>Good Morning, Challenger</h2>
       <h1 style={{ fontSize: '2rem', margin: '0 0 0.25rem', background: 'linear-gradient(135deg, #FFB75E, #ED8F03)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>DAY 23</h1>
-      <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '1.5rem' }}>⏱ 10:32:14 LEFT TODAY</div>
+      <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem' }}>⏱ 10:32:14 LEFT TODAY</div>
+      <div style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600, marginBottom: '1.25rem' }}>{uiConfig.checkinSubtitle}</div>
       <div style={{ background: 'rgba(10,10,10,0.55)', border: '1px solid rgba(73,72,71,0.15)', borderRadius: '12px', overflow: 'hidden' }}>
         {/* Photo area */}
         <div style={{ height: 140, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -185,12 +186,32 @@ const MockProfile: React.FC = () => (
   </div>
 );
 
+const MockLeaderboard: React.FC = () => {
+  const { uiConfig } = useUIConfig();
+  return (
+    <div style={{ ...mockBg }}>
+      <h1 style={{ margin: '0 0 1.5rem', fontSize: '1.4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--primary)', textAlign: 'center' }}>{uiConfig.leaderboardTitle}</h1>
+      {[['🥇', 'Alex R.', '23 wins'], ['🥈', 'Jordan M.', '20 wins'], ['🥉', 'Sam K.', '18 wins']].map(([medal, name, wins], i) => (
+        <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '14px', background: i === 0 ? 'rgba(255,137,171,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${i === 0 ? 'rgba(255,137,171,0.25)' : 'rgba(255,255,255,0.07)'}`, marginBottom: '0.6rem' }}>
+          <span style={{ fontSize: '1.3rem' }}>{medal}</span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{name}</div>
+            <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Day 23 · {wins}</div>
+          </div>
+          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--tertiary)' }}>🔥 14</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // --- Preview Sheet ---
-type PreviewScreen = 'dayzero' | 'home' | 'checkin' | 'profile';
+type PreviewScreen = 'dayzero' | 'home' | 'checkin' | 'leaderboard' | 'profile';
 const PREVIEW_SCREENS: { id: PreviewScreen; label: string }[] = [
   { id: 'dayzero', label: 'Day Zero' },
   { id: 'home', label: 'Home' },
   { id: 'checkin', label: 'Check-In' },
+  { id: 'leaderboard', label: 'Rankings' },
   { id: 'profile', label: 'Profile' },
 ];
 
@@ -233,6 +254,7 @@ const PreviewSheet: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               {activeScreen === 'dayzero' && <MockDayZero />}
               {activeScreen === 'home' && <MockHome />}
               {activeScreen === 'checkin' && <MockCheckIn />}
+              {activeScreen === 'leaderboard' && <MockLeaderboard />}
               {activeScreen === 'profile' && <MockProfile />}
             </motion.div>
           </AnimatePresence>
