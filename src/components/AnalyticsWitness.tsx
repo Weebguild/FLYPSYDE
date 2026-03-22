@@ -87,8 +87,10 @@ const AnalyticsWitness: React.FC = () => {
       const slips: (FeedPost & { userName: string })[] = [];
       snap.forEach((child) => {
         const post = child.val() as FeedPost;
-        if (memberIds.includes(post.userId) && post.type === 'slip') {
-          slips.push({ ...post, id: child.key ?? '', userName: post.userName });
+        const slippedArr = Object.values((post as any).slippedHabits || {}) as string[];
+        const hasSlip = slippedArr.length > 0 || post.type === 'slip';
+        if (memberIds.includes(post.userId) && hasSlip) {
+          slips.push({ ...post, id: child.key ?? '', userName: post.userName, slippedHabits: slippedArr });
         }
       });
       // Show newest first
