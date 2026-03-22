@@ -13,26 +13,36 @@ const rankColors: Record<number, string> = {
 };
 
 const Leaderboard: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const { uiConfig } = useUIConfig();
-  const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!userProfile?.groupCode) {
+      setLoading(false);
+      return;
+    }
     const usersRef = ref(db, 'users');
     const unsub = onValue(usersRef, (snap) => {
       if (snap.exists()) {
-        const data = snap.val() as Record<string, User>;
-        const list = Object.values(data)
-          .sort((a, b) => (b.currentWeight ?? 0) - (a.currentWeight ?? 0)); // replace with streak
-        setUsers(list);
+        const squadMembers: User[] = [];
+        snap.forEach((childSnap) => {
+          const u = childSnap.val() as User;
+          if (u.groupCode === userProfile.groupCode) {
+            squadMembers.push({ ...u, id: childSnap.key! });
+          }
+        });
+        // Sort by joinedAt ascending (longest survivor first) as a placeholder
+        squadMembers.sort((a, b) => (a.joinedAt as number) - (b.joinedAt as number));
+        setMembers(squadMembers);
       } else {
-        setUsers([]);
+        setMembers([]);
       }
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [userProfile]);
 
   return (
     <div style={{ padding: '1.5rem 1.5rem 0' }}>
@@ -49,16 +59,24 @@ const Leaderboard: React.FC = () => {
       </h2>
 
       {loading ? (
-        <div style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '3rem 0' }}>
-          Loading...
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} style={{
+              height: '64px', borderRadius: '14px',
+              background: 'var(--surface-container)',
+              opacity: 0.5,
+              animation: 'pulse 1.5s ease-in-out infinite',
+            }} />
+          ))}
         </div>
-      ) : users.length === 0 ? (
-        <div style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '3rem 0' }}>
-          No warriors yet. Start your journey.
+      ) : members.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--on-surface-variant)' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏆</div>
+          <p style={{ fontSize: '0.88rem', margin: 0 }}>No warriors ranked yet.<br />Join a squad to compete.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-          {users.map((user, index) => {
+          {members.map((user, index) => {
             const rank = index + 1;
             const isMe = user.id === currentUser?.uid;
             const medalColor = rankColors[rank];
@@ -68,7 +86,7 @@ const Leaderboard: React.FC = () => {
                 key={user.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.04 }}
+                transition={{ delay: index * 0.05 }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -84,7 +102,7 @@ const Leaderboard: React.FC = () => {
                   backdropFilter: 'blur(6px)',
                 }}
               >
-                {/* Rank Number */}
+                {/* Rank */}
                 <div style={{
                   minWidth: '28px',
                   textAlign: 'center',
@@ -105,7 +123,7 @@ const Leaderboard: React.FC = () => {
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                   }}>
-                    {user.displayName ?? 'Unknown Warrior'}
+                    {user.displayName ?? 'Unknown'}
                     {isMe && <span style={{ fontSize: '0.7rem', marginLeft: '0.5rem', opacity: 0.7 }}>• YOU</span>}
                   </div>
                   <div style={{
@@ -119,17 +137,14 @@ const Leaderboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Streak */}
-                <div style={{ textAlign: 'right' }}>
+                {/* Day marker */}
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{
                     fontWeight: 800,
                     fontSize: '1.1rem',
                     color: isMe ? 'var(--primary)' : 'var(--on-surface)',
                   }}>
-                    —
-                  </div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--on-surface-variant)', letterSpacing: '0.06em' }}>
-                    STREAK
+                    🔥
                   </div>
                 </div>
               </motion.div>

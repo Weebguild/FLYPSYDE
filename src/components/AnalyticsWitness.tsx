@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { db } from '../firebase';
-import { ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 import { useAuth } from '../contexts/AuthContext';
 import { useGroup } from '../contexts/GroupContext';
 import { useUIConfig } from '../contexts/UIConfigContext';
@@ -29,8 +29,8 @@ interface MemberUserWithCheckin extends User {
 }
 
 const AnalyticsWitness: React.FC = () => {
-  const { currentUser } = useAuth();
-  const { currentGroup, loading: groupLoading } = useGroup();
+  const { currentUser, userProfile } = useAuth();
+  const { currentGroup } = useGroup();
   const { uiConfig } = useUIConfig();
   const [members, setMembers] = useState<MemberUserWithCheckin[]>([]);
   const [slipFeed, setSlipFeed] = useState<(FeedPost & { userName: string })[]>([]);
@@ -38,12 +38,15 @@ const AnalyticsWitness: React.FC = () => {
 
   // Fetch member profiles
   useEffect(() => {
-    if (!currentGroup || !currentGroup.memberIds || currentGroup.memberIds.length === 0) {
+    if (!currentGroup || !currentGroup.memberIds) {
       setLoadingMembers(false);
       setMembers([]);
       return;
     }
-    const memberIds = currentGroup.memberIds;
+    const memberIds = Object.values(currentGroup.memberIds || {}) as string[];
+    if (memberIds.length === 0) { setLoadingMembers(false); setMembers([]); return; }
+
+    setLoadingMembers(true);
     const today = new Date().toISOString().split('T')[0];
     const promises = memberIds.map(
       (id) =>
@@ -52,45 +55,33 @@ const AnalyticsWitness: React.FC = () => {
           onValue(userRef, (snap) => {
             if (snap.exists()) {
               const u = snap.val() as User;
-              resolve({ ...u, id, checkedInToday: false }); // checkin flag set below
+              resolve({ ...u, id, checkedInToday: false });
             } else {
               resolve(null);
             }
           }, { onlyOnce: true });
         })
     );
-    Promise.all(promises).then((results) => {
-      const defined = results.filter(Boolean) as MemberUserWithCheckin[];
-      // Check who posted in the feed today
-      const feedRef = query(ref(db, 'feed'), orderByChild('timestamp'));
-      onValue(feedRef, (snap) => {
-        const checkedIn = new Set<string>();
-        if (snap.exists()) {
-          snap.forEach((child) => {
-            const post = child.val() as FeedPost;
-            if (memberIds.includes(post.userId)) {
-              const rawTs = post.timestamp as any;
-              const postDay = typeof rawTs === 'string'
-                ? (rawTs as string).split('T')[0]
-                : new Date(rawTs).toISOString().split('T')[0];
-              if (postDay === today) checkedIn.add(post.userId);
-            }
-          });
-        }
-        setMembers(defined.map((m) => ({ ...m, checkedInToday: checkedIn.has(m.id) })));
+    Promise.all(promises)
+      .then((results) => {
+        const defined = results.filter(Boolean) as MemberUserWithCheckin[];
+        setMembers(defined);
         setLoadingMembers(false);
-      }, { onlyOnce: true });
-    });
+      })
+      .catch(() => setLoadingMembers(false));
   }, [currentGroup]);
 
   // Fetch the slip-up feed for the group
   useEffect(() => {
-    if (!currentGroup || !currentGroup.memberIds || currentGroup.memberIds.length === 0) {
+    if (!currentGroup || !currentGroup.memberIds) {
       setSlipFeed([]);
       return;
     }
-    const memberIds = currentGroup.memberIds;
-    const feedRef = query(ref(db, 'feed'), orderByChild('timestamp'));
+    const memberIds = Object.values(currentGroup.memberIds || {}) as string[];
+    if (memberIds.length === 0) { setSlipFeed([]); return; }
+    const groupCode = userProfile?.groupCode;
+    if (!groupCode) { setSlipFeed([]); return; }
+    const feedRef = ref(db, `feeds/${groupCode}`);
     const unsub = onValue(feedRef, (snap) => {
       if (!snap.exists()) { setSlipFeed([]); return; }
       const slips: (FeedPost & { userName: string })[] = [];
@@ -111,7 +102,8 @@ const AnalyticsWitness: React.FC = () => {
     return () => unsub();
   }, [currentGroup]);
 
-  if (groupLoading || loadingMembers) {
+  // Show spinner only while actively fetching member data
+  if (loadingMembers) {
     return (
       <div style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '4rem 1.5rem' }}>
         <div style={{
